@@ -31,5 +31,9 @@ https://www.haskell.org/ghcup/steps/ , leer este a fondo , aqui dentro tenemos a
 https://github.com/haskell-beginners-2022/course-plan
 
 
-
-
+# TLTR IntelliJ 
+1. instalar con ghcup stack 
+2. instalar Intellij 
+3. instalar plugin ![img.png](img.png) 
+4. Aqui se configura jetbrains://idea/settings?name=Languages+%26+Frameworks--Haskell
+5. Esperar mientras instala todas las dependencias por nosotros, lo importante es definirle la ruta del stack ![img_1.png](img_1.png)
