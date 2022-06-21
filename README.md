@@ -14,6 +14,11 @@ Este repo se crea para autodidactas , como el que lo escribe, con la intención 
 La idea es dejar en este readme los enlaces más interesantes que encuentre y mis propias anotaciones para usarlas como guía , principalmente yo , ya que creo que dificilmente esté interesado , si no es así hazmelo saber con una &#10032; o un pr. 
 
 # Links de interés
+[Tutorial en español primeros pasos](https://www.youtube.com/watch?v=D2xsaA_YERY&list=PLD2wfKpqmxnkHPK_Tzv80HCwOaYph33pH) , genial para empezar.
+
+
+
+
 -todo: repo del libro aprende haskell por el bien de todos en esp
 -todo: blog de las instrucciones para usar stack . 
 
@@ -21,6 +26,10 @@ La idea es dejar en este readme los enlaces más interesantes que encuentre y mi
 ## Ghcup (Un amigo para siempre)
 https://www.haskell.org/ghcup/  este programilla es el primero que hay que instalar y da igual el sistema , aunque en la version de win te quedas sin al opción más interesante que tiene , que es precisamente una pequeña interfaz en consola.
 De lo que se encarga es precisamente de gestionar esas herramientas básicas necesarias por tí , así como sus versiones. 
+
+https://www.haskell.org/ghcup/steps/ , leer este a fondo , aqui dentro tenemos al final tb resources para aprender bien 
+https://github.com/haskell-beginners-2022/course-plan
+
 
 
 
