@@ -2,5 +2,9 @@ module Lib
     ( someFunc
     ) where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunco" 
+someFunc :: Integer 
+someFunc = let
+    x = 5
+    y = 6
+    z = 9
+      in x + y + z 

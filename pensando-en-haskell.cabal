@@ -27,6 +27,7 @@ library
   exposed-modules:
       ADNCalculator
       GoodNames
+      LetInExample
       Lib
   other-modules:
       Paths_pensando_en_haskell
