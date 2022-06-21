@@ -7,3 +7,4 @@ main :: IO ()
 main = do
   print goodNames
   print $ isValid "ADN"
+  print $ countADN "GATTACAGATTACAGATTTTACCCAAAAA"
