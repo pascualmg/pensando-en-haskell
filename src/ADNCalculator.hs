@@ -16,5 +16,3 @@ module ADNCalculator( tester) where
 
   tester :: IO ()
   tester = print $ isValid sample
-  
-  
