@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import ADNCalculator
 
 main :: IO ()
-main = someFunc
+main = tester

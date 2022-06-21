@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      ADNCalculator
       Lib
   other-modules:
       Paths_pensando_en_haskell
