@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       ADNCalculator
+      GoodNames
       Lib
   other-modules:
       Paths_pensando_en_haskell
@@ -51,6 +52,7 @@ test-suite pensando-en-haskell-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      GoodNamesSpec
       Paths_pensando_en_haskell
   hs-source-dirs:
       test

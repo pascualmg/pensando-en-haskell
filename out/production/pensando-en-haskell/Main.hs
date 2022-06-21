@@ -1,6 +1,9 @@
 module Main where
 
 import ADNCalculator
+import GoodNames
 
 main :: IO ()
-main = tester
+main = do
+  print goodNames
+  print $ isValid "ADN"

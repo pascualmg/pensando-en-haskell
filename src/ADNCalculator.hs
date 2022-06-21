@@ -1,4 +1,4 @@
-module ADNCalculator( tester) where
+module ADNCalculator where
   sample :: String
   sample = "ATC"
 
@@ -14,5 +14,4 @@ module ADNCalculator( tester) where
   isValid :: String -> Bool
   isValid xs = hasOnlyElements xs adnChars
 
-  tester :: IO ()
-  tester = print $ isValid sample
+
