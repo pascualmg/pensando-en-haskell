@@ -12,7 +12,7 @@ Este repo únicamente te va a servir de algo si eres un **noobskell** como yo , 
 Este repo se crea para autodidactas , como el que lo escribe, con la intención de tener una pequeña referencia para los primeros pasos que hay que dar para aprender a programar en Haskell , a veces precisamente lo más dificil es poder configurar un entorno de depuracion amigable y familiarizarse con las herramientas necesarias para conseguir ejecutar algo. 
 
 La idea es dejar en este readme los enlaces más interesantes que encuentre y mis propias anotaciones para usarlas como guía , principalmente yo , ya que creo que dificilmente esté interesado , si no es así hazmelo saber con una &#10032; o un pr. 
-
+
 # Links de interés (que intentaré poner con algún orden)
 1. Tutorial oficial al instalar ghcup https://github.com/haskell-beginners-2022/course-plan
 2. https://typeclasses.com/beginner-crash-course/types-and-functions-1
