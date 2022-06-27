@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Lib
     ( someFunc
     ) where
@@ -7,4 +9,4 @@ someFunc = let
     x = 5
     y = 6
     z = 9
-      in x + y + z 
+      in x + y + z

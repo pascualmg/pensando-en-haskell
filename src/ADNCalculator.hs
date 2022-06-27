@@ -1,6 +1,4 @@
 module ADNCalculator where
-  sample :: String
-  sample = "ATC"
 
   adnChars :: String
   adnChars = "ATCG"

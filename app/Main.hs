@@ -1,10 +1,9 @@
 module Main where
 
 import ADNCalculator
-import GoodNames
 
+-- | Aqui tiene que generar documentacion automaticamente con stack haddock
 main :: IO ()
 main = do
-  print goodNames
   print $ isValid "ADN"
   print $ countADN "GATTACAGATTACAGATTTTACCCAAAAA"
