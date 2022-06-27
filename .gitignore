@@ -1,4 +1,6 @@
 .stack-work/
 *~
-./out
 /.ghc.environment.*
+/out/*
+/dist-newstyle/*
+/dist-newstyle/cache/*
