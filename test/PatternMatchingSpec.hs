@@ -23,3 +23,9 @@ spec =  do
         SUT.eval 1 '*' 1 `shouldBe` 1
       it "given two integers when eval with invalid operation char invalid op then return 0 " $ do  
         SUT.eval 1 'z' 1 `shouldBe` 0
+      it "given two integers 1 and 1  when eval with operation sum char '/' then return the quotient of the two integers" $ do
+        SUT.eval 1 '/' 1 `shouldBe` 1
+      it "given two integers 1 and 0  when eval with operation sum char '/' then throws exception" $ do
+        evaluate (SUT.eval 1 '/' 0) `shouldThrow` anyException 
+       
+       
