@@ -12,11 +12,19 @@ import qualified Exercises.Tema01.Ej02.SumaEurosColeccionMonedas as SUT
 -- sumaMonedas 1 1 1 1 1 == 38
 spec :: Spec
 spec = do 
-  describe "Exercises.Tema01.Ej02.SumaEurosColeccionMonedasSpec" $ do
+  describe "sumaMonedas" $ do
     it "Given 0 0 0 0 1 When sumaMonedas Then get 20 Euros" $ do
       SUT.sumaMonedas 0 0 0 0 1 `shouldBe` 20
     it "Given 0 0 8 0 3 When sumaMonedas Then get 20 Euros" $ do
       SUT.sumaMonedas 0 0 8 0 3 `shouldBe` 100
     it "given 1 1 1 1 1 When sumaMonedas Then get 38" $ do 
       SUT.sumaMonedas 1 1 1 1 1 `shouldBe` 38
+
+  describe "sumaMonedas'" $ do
+    it "Given 0 0 0 0 1 When sumaMonedas Then get 20 Euros" $ do
+      SUT.sumaMonedas' 0 0 0 0 1 `shouldBe` 20
+    it "Given 0 0 8 0 3 When sumaMonedas Then get 20 Euros" $ do
+      SUT.sumaMonedas' 0 0 8 0 3 `shouldBe` 100
+    it "given 1 1 1 1 1 When sumaMonedas Then get 38" $ do 
+      SUT.sumaMonedas' 1 1 1 1 1 `shouldBe` 38
 

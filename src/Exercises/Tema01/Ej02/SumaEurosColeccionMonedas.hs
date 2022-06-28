@@ -15,3 +15,10 @@ module Exercises.Tema01.Ej02.SumaEurosColeccionMonedas where
      (c * peso!!2) +
      (d * peso!!3) +
      (e * peso!!4) 
+     
+ sumaMonedas' :: Int -> Int -> Int -> Int -> Int -> Int 
+ sumaMonedas' a b c d e  = 
+     let 
+      peso = [1, 2, 5 , 10, 20] 
+      monedas = [a , b , c , d , e]
+     in sum (zipWith (*) monedas peso)
