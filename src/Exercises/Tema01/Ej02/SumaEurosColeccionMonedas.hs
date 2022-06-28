@@ -5,6 +5,8 @@
 -- sumaMonedas 0 0 0 0 1 == 20
 -- sumaMonedas 0 0 8 0 3 == 100
 -- sumaMonedas 1 1 1 1 1 == 38
+-- Solución:
+-- sumaMonedas a b c d e = 1*a+2*b+5*c+10*d+20*e
 
 module Exercises.Tema01.Ej02.SumaEurosColeccionMonedas where
  sumaMonedas :: Int -> Int -> Int -> Int -> Int -> Int 
