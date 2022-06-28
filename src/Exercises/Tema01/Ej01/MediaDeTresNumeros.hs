@@ -1,4 +1,4 @@
-module Exercises.MediaDeTresNumeros where
+module Exercises.Tema01.Ej01.MediaDeTresNumeros where
  media3 :: (Fractional a) => a -> a -> a -> a
  media3 a b c = (a + b + c) / 3 
  

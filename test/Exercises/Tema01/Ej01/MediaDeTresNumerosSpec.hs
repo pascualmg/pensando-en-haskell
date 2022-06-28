@@ -1,7 +1,7 @@
-module Exercises.MediaDeTresNumerosSpec where
+module Exercises.Tema01.Ej01.MediaDeTresNumerosSpec where
 
 import Test.Hspec
-import qualified Exercises.MediaDeTresNumeros as SUT
+import qualified Exercises.Tema01.Ej01.MediaDeTresNumeros as SUT 
 
 spec :: Spec
 spec = do
