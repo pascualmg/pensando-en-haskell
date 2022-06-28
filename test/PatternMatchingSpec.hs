@@ -8,7 +8,6 @@ spec :: Spec
 spec =  do
   describe "PatternMatching.isZero" $ do
     it "returns True if the element is Number 0" $ do
-      print $ isZero 0
       SUT.isZero 0 `shouldBe` True
     it "returns False if the element is Number 1" $ do
       SUT.isZero 1 `shouldBe` False

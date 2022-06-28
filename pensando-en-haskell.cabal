@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       ADNCalculator
+      Exercises.MediaDeTresNumeros
       GoodNames
       LetInExample
       Lib
@@ -57,6 +58,7 @@ test-suite pensando-en-haskell-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Exercises.MediaDeTresNumerosSpec
       GoodNamesSpec
       PatternMatchingSpec
       Paths_pensando_en_haskell
