@@ -14,3 +14,14 @@ isZero :: Int -> Bool
 isZero 0 = True
 isZero _ = False
 
+eval :: Int -> Char -> Int -> Int
+eval x '+' y = x + y
+eval x '*' y = x * y
+eval x '-' y = x - y
+eval x '/' y = x `div` y
+eval x '^' y = x ^ y
+eval x '%' y = x `mod` y
+eval _ _ _ = 0
+  
+
+
