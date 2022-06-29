@@ -28,6 +28,7 @@ library
       ADNCalculator
       Exercises.Tema01.Ej01.MediaDeTresNumeros
       Exercises.Tema01.Ej02.SumaEurosColeccionMonedas
+      Exercises.Tema01.EJ03.SphereVolume
       GoodNames
       LetInExample
       Lib
@@ -61,6 +62,7 @@ test-suite pensando-en-haskell-test
   other-modules:
       Exercises.Tema01.Ej01.MediaDeTresNumerosSpec
       Exercises.Tema01.Ej02.SumaEurosColeccionMonedasSpec
+      Exercises.Tema01.EJ03.SphereVolumeSpec
       GoodNamesSpec
       PatternMatchingSpec
       Paths_pensando_en_haskell
