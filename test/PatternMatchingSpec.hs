@@ -13,6 +13,16 @@ spec =  do
       SUT.isZero 1 `shouldBe` False
     it "throws an exception if used with an empty list" $ do
       evaluate (head []) `shouldThrow` anyException
+  describe "PatternMatching.eval" $ do
+    it "given 1 '+' 2 when eval then 3" $ do
+      SUT.eval 1 '+' 2 `shouldBe` 3
+    it "given 1 '-' 2 when eval then -1" $ do
+      SUT.eval 1 '-' 2 `shouldBe` (-1)
+    it "given 1 '*' 2 when eval then 2" $ do
+      SUT.eval 1 '*' 2 `shouldBe` 2
+    it "given 1 'z' 2 (invalid operation) when eval then 0" $ do
+      SUT.eval 1 'x' 2 `shouldBe` 0
+
     describe "PatternMatching.eval" $ do
       it "given two integers when eval with operation sum char '+' then return the sum of the two integers" $ do
         SUT.eval 1 '+' 1 `shouldBe` 2 

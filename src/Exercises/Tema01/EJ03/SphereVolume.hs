@@ -4,7 +4,4 @@
      --volumenEsfera 10 == 4188.790204786391
 module Exercises.Tema01.EJ03.SphereVolume where
   sphereVolume :: Double -> Double
-  sphereVolume r = (4.0/3.0) * pi * (r * r * r) 
-  
-  
-
+  sphereVolume r = (4.0/3.0) * pi * r^3

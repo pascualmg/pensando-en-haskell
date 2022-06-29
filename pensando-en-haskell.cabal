@@ -33,7 +33,6 @@ library
       LetInExample
       Lib
       PatternMatching
-      Tipos
   other-modules:
       Paths_pensando_en_haskell
   hs-source-dirs:
