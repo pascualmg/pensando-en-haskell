@@ -29,6 +29,7 @@ library
       Exercises.Tema01.Ej01.MediaDeTresNumeros
       Exercises.Tema01.Ej02.SumaEurosColeccionMonedas
       Exercises.Tema01.EJ03.SphereVolume
+      Exercises.Tema01.EJ04.CircularCrownArea
       GoodNames
       LetInExample
       Lib
@@ -62,6 +63,7 @@ test-suite pensando-en-haskell-test
       Exercises.Tema01.Ej01.MediaDeTresNumerosSpec
       Exercises.Tema01.Ej02.SumaEurosColeccionMonedasSpec
       Exercises.Tema01.EJ03.SphereVolumeSpec
+      Exercises.Tema01.EJ04.CircularCrownAreaSpec
       GoodNamesSpec
       PatternMatchingSpec
       Paths_pensando_en_haskell
