@@ -30,6 +30,7 @@ library
       Exercises.Tema01.Ej02.SumaEurosColeccionMonedas
       Exercises.Tema01.EJ03.SphereVolume
       Exercises.Tema01.EJ04.CircularCrownArea
+      Exercises.Tema01.EJ05.LastCipherOfOneNumber
       GoodNames
       LetInExample
       Lib
