@@ -37,5 +37,3 @@ eval' a op b = case op of
   '^' -> a ^ b
   '%' -> a `mod` b
   _ -> 0
-
-
