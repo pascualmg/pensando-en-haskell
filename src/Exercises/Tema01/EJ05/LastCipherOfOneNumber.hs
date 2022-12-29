@@ -9,3 +9,6 @@ lastcipher' = read . (:[]) . last . show
 lastcipher'' :: Int -> Int
 lastcipher'' = mod 10
 
+
+
+

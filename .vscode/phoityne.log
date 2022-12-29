@@ -70,3 +70,7 @@
 2022-12-26 22:59:53.453184200000 [$pid(ThreadId 5)] ERROR APP - user error (<getModule> loaded module can not find from path. <f:\src\pensando-en-haskell\src\Lib.hs> [("ADNCalculator","F:\\src\\pensando-en-haskell\\src\\ADNCalculator.hs"),("Main","F:/src/pensando-en-haskell/app/Main.hs")])
 2022-12-26 22:59:53.614241400000 [$pid(ThreadId 5)] ERROR APP - user error (<getModule> loaded module can not find from path. <f:\src\pensando-en-haskell\test\Spec.hs> [("ADNCalculator","F:\\src\\pensando-en-haskell\\src\\ADNCalculator.hs"),("Main","F:/src/pensando-en-haskell/app/Main.hs")])
 2022-12-26 23:00:36.861805400000 [$pid(ThreadId 5)] ERROR APP - user error (<getModule> loaded module can not find from path. <f:\src\pensando-en-haskell\test\Spec.hs> [("ADNCalculator","F:\\src\\pensando-en-haskell\\src\\ADNCalculator.hs"),("Main","F:/src/pensando-en-haskell/app/Main.hs")])
+2022-12-28 10:37:19.447100300000 [$pid(ThreadId 5)] ERROR APP - [CRITICAL] can not get the initial ghci prompt.
+2022-12-28 10:37:35.707511100000 [$pid(ThreadId 5)] ERROR APP - [CRITICAL] can not get the initial ghci prompt.
+2022-12-28 10:38:05.483673000000 [$pid(ThreadId 5)] ERROR APP - [CRITICAL] can not get the initial ghci prompt.
+2022-12-28 10:42:42.796834400000 [$pid(ThreadId 5)] ERROR APP - user error (<getModule> loaded module can not find from path. <f:\src\pensando-en-haskell\test\Spec.hs> [("ADNCalculator","F:\\src\\pensando-en-haskell\\src\\ADNCalculator.hs"),("Main","F:/src/pensando-en-haskell/app/Main.hs")])

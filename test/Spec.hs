@@ -5,6 +5,7 @@ import qualified Exercises.Tema01.Ej01.MediaDeTresNumerosSpec as T01EJ01
 import qualified Exercises.Tema01.Ej02.SumaEurosColeccionMonedasSpec as T01EJ02
 import qualified Exercises.Tema01.EJ03.SphereVolumeSpec as T01EJ03
 import qualified Exercises.Tema01.EJ04.CircularCrownAreaSpec as T01EJ04
+import qualified Exercises.Tema01.EJ07.SumEvensSpec as T01EJ07
 
 main :: IO ()
 main = hspec spec
@@ -16,3 +17,4 @@ spec = do
   describe "Suma de euros con monedas" T01EJ02.spec
   describe "Volúmen de la esfera" T01EJ03.spec
   describe "Áread e una corona circular" T01EJ04.spec
+  describe "suma pares" T01EJ07.spec
