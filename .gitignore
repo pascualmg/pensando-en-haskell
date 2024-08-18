@@ -4,3 +4,4 @@
 /out/*
 /dist-newstyle/*
 /dist-newstyle/cache/*
+.vscode/dist-cabal-repl/*
