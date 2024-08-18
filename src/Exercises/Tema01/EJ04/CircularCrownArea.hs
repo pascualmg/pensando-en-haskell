@@ -6,4 +6,4 @@
 module Exercises.Tema01.EJ04.CircularCrownArea where
 
 circularCrownArea :: Double -> Double -> Double
-circularCrownArea r1 r2 = pi * (r2^2 - r1^2)
+circularCrownArea r1 r2 = pi * (r2^(2 :: Integer) - r1^(2 :: Integer))
