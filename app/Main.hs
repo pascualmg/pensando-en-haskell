@@ -1,9 +1,17 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import ADNCalculator
+import ADNCalculator ( isValid, countADN )
 
--- | Aqui tiene que generar documentacion automaticamente con stack haddock
+
+
 main :: IO ()
 main = do
   print $ isValid "ADN"
   print $ countADN "GATTACAGATTACAGATTTTACCCAAAAA"
+pinta :: [(Char,Int)] -> String
+pinta [] = ""
+pinta ((c,i):xs) = replicate i c ++ pinta xs
+
+-- >>> pinta $ countADN "GATTACCCCCCAGGGG"
+-- parse error (possibly incorrect indent
