@@ -34,6 +34,7 @@ library
       Exercises.Tema01.EJ06.BiggerOfTrhee
       Exercises.Tema01.EJ07.MiXor
       Exercises.Tema01.EJ07.SumEvens
+      Exercises.Tema01.EJ08.RotaLista
       GoodNames
       LetInExample
       Lib
@@ -71,6 +72,7 @@ test-suite pensando-en-haskell-test
       Exercises.Tema01.EJ03.SphereVolumeSpec
       Exercises.Tema01.EJ04.CircularCrownAreaSpec
       Exercises.Tema01.EJ07.SumEvensSpec
+      Exercises.Tema01.EJ08.RotaListaSpec
       GoodNamesSpec
       PatternMatchingSpec
       Paths_pensando_en_haskell

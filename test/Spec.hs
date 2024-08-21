@@ -6,6 +6,7 @@ import qualified Exercises.Tema01.Ej02.SumaEurosColeccionMonedasSpec as T01EJ02
 import qualified Exercises.Tema01.EJ03.SphereVolumeSpec as T01EJ03
 import qualified Exercises.Tema01.EJ04.CircularCrownAreaSpec as T01EJ04
 import qualified Exercises.Tema01.EJ07.SumEvensSpec as T01EJ07
+import qualified Exercises.Tema01.EJ08.RotaListaSpec as T01EJ08
 
 main :: IO ()
 main = hspec spec
@@ -18,3 +19,5 @@ spec = do
   describe "Volúmen de la esfera" T01EJ03.spec
   describe "Áread e una corona circular" T01EJ04.spec
   describe "suma pares" T01EJ07.spec
+  describe "RotaLista" T01EJ08.spec
+

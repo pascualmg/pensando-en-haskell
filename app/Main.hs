@@ -15,3 +15,4 @@ pinta ((c,i):xs) = replicate i c ++ pinta xs
 
 -- >>> pinta $ countADN "GATTACCCCCCAGGGG"
 -- parse error (possibly incorrect indent
+-- "AAATTCCCCCCGGGGG"
