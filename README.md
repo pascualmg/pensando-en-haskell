@@ -41,3 +41,7 @@ De lo que se encarga es precisamente de gestionar esas herramientas básicas nec
 3. instalar plugin ![img.png](img.png)
 4. Aqui se configura jetbrains://idea/settings?name=Languages+%26+Frameworks--Haskell
 5. Esperar mientras instala todas las dependencias por nosotros, lo importante es definirle la ruta del stack ![img_1.png](img_1.png)
+
+# Update . 
+
+Ahora con nix se puede hacer todo mejor.
