@@ -40,6 +40,8 @@ library
       LetInExample
       Lib
       PatternMatching
+      Udemy.EqLista
+      Udemy.MiMap
   other-modules:
       Paths_pensando_en_haskell
   hs-source-dirs:
