@@ -12,5 +12,3 @@ spec = do
   describe "Media de una lista" $ do
     it "Dados una lista de numeros válidos Cuando aplico a media lista Entonces obtengo su media" $ do
       SUT.average' [1..100] `shouldBe` 50.5
-    
-    

@@ -37,8 +37,8 @@ library
       Exercises.Tema01.EJ08.RotaLista
       Exercises.Tema01.Ej09.RangoDeLista
       Exercises.Tema01.Ej10.Palindromo
+      Exercises.Tema01.Ej11.InteriorLista
       GoodNames
-      IA.IdentityMonad
       LetInExample
       Lib
       PatternMatching
@@ -79,6 +79,7 @@ test-suite pensando-en-haskell-test
       Exercises.Tema01.EJ07.SumEvensSpec
       Exercises.Tema01.EJ08.RotaListaSpec
       Exercises.Tema01.EJ10.PalindromoSpec
+      Exercises.Tema01.Ej11.InteriorListaSpec
       GoodNamesSpec
       PatternMatchingSpec
       Paths_pensando_en_haskell
