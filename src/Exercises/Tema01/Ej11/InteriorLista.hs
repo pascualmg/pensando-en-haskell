@@ -13,9 +13,6 @@ interior :: [a] -> [a]
 interior [] = []
 interior [_] = []
 interior [_,_] = []
-interior xs = tail $ init xs
+interior xs = drop 1 $ init xs
 
-interior1 :: [a] -> [a]
-interior1 xs = drop 1 (init xs)
-
--- >>> interior1 [2..7]
+-- >>> interior [1..23]
