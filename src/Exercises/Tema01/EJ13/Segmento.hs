@@ -7,5 +7,4 @@ segmento a b = case (a < 0, b < 0) of
   (True, False) -> take b . drop a
   (False, False) -> take (b - a) . drop a
 
--- >>> segmento'  2 10 "hostiaputa"
--- "stiaputa"
+-- >>> segmento (-2) 4 "jopeta con el segmento"
