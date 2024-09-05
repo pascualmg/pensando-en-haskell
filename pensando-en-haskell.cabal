@@ -39,6 +39,7 @@ library
       Exercises.Tema01.Ej10.Palindromo
       Exercises.Tema01.Ej11.InteriorLista
       Exercises.Tema01.EJ13.Segmento
+      Exercises.Tema01.EJ13.SegmentoSpec
       GoodNames
       LetInExample
       Lib
