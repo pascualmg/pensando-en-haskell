@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       ADNCalculator
+      AI.HasCallStack
       Exercises.Tema01.Ej01.MediaDeTresNumeros
       Exercises.Tema01.Ej02.SumaEurosColeccionMonedas
       Exercises.Tema01.EJ03.SphereVolume
