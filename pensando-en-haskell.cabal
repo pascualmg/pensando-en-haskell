@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.37.0.
+-- This file has been generated from package.yaml by hpack version 0.38.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -39,6 +39,7 @@ library
       Exercises.Tema01.Ej09.RangoDeLista
       Exercises.Tema01.Ej10.Palindromo
       Exercises.Tema01.Ej11.InteriorLista
+      Exercises.Tema01.EJ12.Finales
       Exercises.Tema01.EJ13.Segmento
       Exercises.Tema01.EJ13.SegmentoSpec
       GoodNames
