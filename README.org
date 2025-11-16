@@ -1,0 +1,676 @@
+#+TITLE: Pensando en Haskell
+#+AUTHOR: pascualmg
+#+DATE: 2025
+#+OPTIONS: toc:2 num:nil
+#+PROPERTY: header-args:haskell :results value :exports both
+
+* README Interactivo 🎮
+
+Este README está en formato Org-mode, lo que significa que los snippets de código Haskell son *ejecutables* directamente en Emacs:
+
+1. Coloca el cursor en cualquier bloque ~#+begin_src haskell~
+2. Presiona ~C-c C-c~
+3. ¡El código se ejecuta y ves el resultado!
+
+*Nota*: Para que funcione, necesitas tener configurado ~ob-haskell~ en Doom Emacs (ya lo tienes si seguiste el setup).
+
+-----
+
+* Repo para practicar con los ejercicios del libro
+
+*Libros principales*:
+- [[http://www.cs.us.es/~jalonso/publicaciones/Piensa_en_Haskell.pdf][Piensa en Haskell]] (José A. Alonso Jiménez & Ma José Hidalgo Doblado)
+- [[http://learnyouahaskell.com/][¡Aprende Haskell por el Bien de Todos!]] / Learn You a Haskell for Great Good! (Miran Lipovača)
+
+* Motivación y para quién es útil esto
+
+Este repo únicamente te va a servir de algo si eres un *noobskell* como yo, no tienes ni idea de cómo empezar, ni estás en la uni con esos profesores autores del libro, pero andas con ganas de probar este lenguaje de programación puramente funcional y escapar de esa cárcel de la P💩💩
+
+Este repo se crea para autodidactas, como el que lo escribe, con la intención de tener una pequeña referencia para los primeros pasos que hay que dar para aprender a programar en Haskell. A veces, precisamente lo más difícil es poder configurar un entorno de depuración amigable y familiarizarse con las herramientas necesarias para conseguir ejecutar algo.
+
+La idea es dejar en este README los enlaces más interesantes que encuentre y mis propias anotaciones para usarlas como guía, principalmente para mí, ya que creo que difícilmente esté alguien más interesado. Si es así, házmelo saber con una ⭐ o un PR.
+
+-----
+
+* 🏃 Quick Start (5 minutos)
+
+*Si ya tienes NixOS/Nix con flakes:*
+
+#+begin_src bash
+# 1. Clonar
+git clone https://github.com/pascualmg/pensando-en-haskell
+cd pensando-en-haskell
+
+# 2. Activar entorno (solo primera vez)
+direnv allow
+
+# Verás un mensaje bonito con las herramientas disponibles
+# ═══════════════════════════════════════════════════════
+# 🎓 Entorno Haskell - Pensando en Haskell
+# ═══════════════════════════════════════════════════════
+# GHC: 9.8.4
+# Cabal: 3.16.0.0
+# ...
+
+# 3. Primera build (tarda un poco, descarga dependencias)
+cabal update  # Solo primera vez
+cabal build
+
+# 4. Ejecutar
+cabal run pensando-en-haskell-exe
+
+# 5. Tests
+cabal test
+
+# ✅ ¡YA ESTÁ! Ahora puedes empezar a programar
+#+end_src
+
+*Si no tienes Nix*, mira la sección [[*🚀 Setup desde cero (Nix + Doom Emacs)][Setup desde cero]] más abajo.
+
+-----
+
+* 🎮 Ejemplos Interactivos (¡Pruébalos con C-c C-c!)
+
+Estos ejemplos son ejecutables directamente en este README si lo abres con Doom Emacs:
+
+** Ejemplo 1: Operaciones básicas
+
+#+begin_src haskell
+-- Suma simple
+2 + 3
+#+end_src
+
+** Ejemplo 2: Funciones
+
+#+begin_src haskell
+-- Definir y usar una función
+let suma3 x y z = x + y + z
+in suma3 10 20 30
+#+end_src
+
+** Ejemplo 3: Listas y funciones de orden superior
+
+#+begin_src haskell
+-- Filtrar números pares y sumarlos
+sum (filter even [1..10])
+#+end_src
+
+** Ejemplo 4: List comprehensions
+
+#+begin_src haskell
+-- Pares ordenados donde la suma es 10
+[(x, y) | x <- [1..10], y <- [1..10], x + y == 10, x <= y]
+#+end_src
+
+** Ejemplo 5: Recursión (factorial)
+
+#+begin_src haskell
+let factorial 0 = 1
+    factorial n = n * factorial (n - 1)
+in factorial 5
+#+end_src
+
+** Ejemplo 6: Tipos y polimorfismo
+
+#+begin_src haskell
+-- Longitud de diferentes tipos de listas
+length [1, 2, 3, 4, 5]
+#+end_src
+
+#+begin_src haskell
+length ["hola", "mundo", "haskell"]
+#+end_src
+
+** Ejemplo 7: Pattern matching
+
+#+begin_src haskell
+let describeLista [] = "Lista vacía"
+    describeLista [x] = "Lista con un elemento: " ++ show x
+    describeLista (x:y:_) = "Lista que empieza con " ++ show x ++ " y " ++ show y
+in describeLista [1, 2, 3, 4]
+#+end_src
+
+*Nota*: Coloca el cursor en cualquier bloque y presiona ~C-c C-c~ para ejecutarlo. ¡El resultado aparecerá justo debajo!
+
+-----
+
+* 💻 Desarrollo Diario (Lo que usarás siempre)
+
+** Comandos esenciales de Cabal
+
+#+begin_src bash
+# ═══ COMPILAR ═══
+cabal build                    # Compila todo el proyecto
+cabal build pensando-en-haskell-exe  # Solo el ejecutable
+
+# ═══ EJECUTAR ═══
+cabal run pensando-en-haskell-exe    # Compila (si hace falta) y ejecuta
+
+# ═══ TESTS ═══
+cabal test                     # Ejecuta todos los tests (HSpec)
+cabal test --test-show-details=direct  # Muestra output detallado
+
+# ═══ REPL INTERACTIVO ═══
+cabal repl                     # GHCi con tu proyecto cargado
+# Dentro del REPL:
+# > :l src/MiModulo.hs          -- Cargar módulo
+# > :r                          -- Recargar cambios
+# > :t miFuncion                -- Ver tipo
+# > miFuncion argumentos         -- Ejecutar
+# > :q                          -- Salir
+
+# ═══ LIMPIAR ═══
+cabal clean                    # Borra builds (si algo va raro)
+#+end_src
+
+** Workflow real: Añadiendo un ejercicio nuevo
+
+*Ejemplo*: Vamos a añadir Ejercicio 14 del Tema 1
+
+*1. Crear el módulo* (~src/Exercises/Tema01/Ej14/MiEjercicio.hs~):
+
+#+begin_src haskell
+module Exercises.Tema01.Ej14.MiEjercicio (suma3) where
+
+-- | Suma tres números
+suma3 :: Int -> Int -> Int -> Int
+suma3 x y z = x + y + z
+
+-- >>> suma3 1 2 3
+-- 6
+#+end_src
+
+*2. Crear el test* (~test/Exercises/Tema01/Ej14/MiEjercicioSpec.hs~):
+
+#+begin_src haskell
+module Exercises.Tema01.Ej14.MiEjercicioSpec (spec) where
+
+import Test.Hspec
+import Exercises.Tema01.Ej14.MiEjercicio
+
+spec :: Spec
+spec = describe "suma3" $ do
+  it "suma tres números correctamente" $
+    suma3 1 2 3 `shouldBe` 6
+#+end_src
+
+*3. Registrar en ~.cabal~* (~pensando-en-haskell.cabal~):
+
+#+begin_src cabal
+library
+  exposed-modules:
+      -- ... otros módulos
+      Exercises.Tema01.Ej14.MiEjercicio  -- ← Añadir aquí
+#+end_src
+
+Y en la sección de tests:
+
+#+begin_src cabal
+test-suite pensando-en-haskell-test
+  other-modules:
+      -- ... otros tests
+      Exercises.Tema01.Ej14.MiEjercicioSpec  -- ← Añadir aquí
+#+end_src
+
+*4. Compilar y probar*:
+
+#+begin_src bash
+cabal build  # Debería compilar sin errores
+cabal test   # Tu nuevo test debería pasar
+#+end_src
+
+*5. Formatear* (opcional pero recomendado):
+
+#+begin_src bash
+fourmolu -i src/Exercises/Tema01/Ej14/MiEjercicio.hs
+#+end_src
+
+** Añadiendo dependencias externas
+
+*Ejemplo*: Quiero usar ~text~ para trabajar con strings eficientes
+
+*1. Editar ~pensando-en-haskell.cabal~*:
+
+#+begin_src cabal
+library
+  build-depends:
+      base >=4.7 && <5
+    , aeson           -- Ya estaba
+    , hspec >=2.6 && <3
+    , text            -- ← AÑADIR AQUÍ (automáticamente última versión compatible)
+    -- o con versión específica:
+    -- , text >= 2.0 && < 2.1
+#+end_src
+
+*2. Ejecutar*:
+
+#+begin_src bash
+cabal build  # Cabal descarga 'text' automáticamente
+#+end_src
+
+*3. Usar en tu código*:
+
+#+begin_src haskell
+import qualified Data.Text as T
+
+miTexto :: T.Text
+miTexto = T.pack "Hola Haskell!"
+#+end_src
+
+*Nota*: No necesitas ~cabal install~ ni nada. Solo añadir a ~build-depends~ y ~cabal build~.
+
+** Desarrollo rápido con ghcid
+
+*ghcid* recompila automáticamente cuando guardas archivos. Es MÁGICO.
+
+#+begin_src bash
+# En una terminal aparte (dejar corriendo)
+ghcid --command='cabal repl'
+
+# Ahora edita cualquier archivo .hs
+# ghcid recompila en < 1 segundo y muestra errores
+# ¡Feedback instantáneo!
+#+end_src
+
+En Doom Emacs, ghcid + HLS es imparable:
+- *ghcid*: Feedback rápido en terminal
+- *HLS*: Errores inline, autocompletado, goto definition
+
+-----
+
+* 🔧 Herramientas disponibles
+
+Cuando entras al proyecto con ~direnv~, tienes todo esto:
+
+** Core Toolchain
+- *GHC 9.8.4* - Compilador Haskell
+- *cabal-install 3.16* - Build tool (lo que usamos)
+- *haskell-language-server* - LSP para IDE (Doom Emacs)
+
+** Formatters
+- *fourmolu* ⭐ - Fork configurable de ormolu (recomendado)
+- *ormolu* - Formateador opinionado sin config
+- *stylish-haskell* - Más conservador
+
+#+begin_src bash
+# Formatear archivo
+fourmolu -i src/MiModulo.hs
+
+# Formatear todo el proyecto
+find src test -name "*.hs" -exec fourmolu -i {} \;
+#+end_src
+
+** Linting
+- *hlint* - Sugerencias de estilo y mejoras
+
+#+begin_src bash
+# Ver sugerencias
+hlint src/
+
+# Aplicar sugerencias automáticamente
+hlint src/ --refactor --refactor-options="-i"
+#+end_src
+
+** Desarrollo
+- *ghcid* - Recompilación ultra-rápida (< 1s)
+- *hoogle* - Búsqueda de documentación
+- *gen-hie* - Genera ~hie.yaml~ (ya lo tenemos)
+
+-----
+
+* 🎯 Doom Emacs Shortcuts (si usas Doom)
+
+Abre cualquier archivo ~.hs~ y:
+
+- =SPC c d= - Ir a definición
+- =SPC c D= - Encontrar referencias
+- =SPC c k= - Mostrar documentación (hover)
+- =SPC c r= - Renombrar símbolo
+- =SPC c f= - Formatear con fourmolu
+- =SPC c a= - Code actions (aplicar sugerencias hlint)
+- =SPC c x= - Lista de errores
+- =SPC m= - Menu específico de Haskell
+
+HLS te da:
+- ✅ Errores de tipos inline
+- ✅ Autocompletado inteligente
+- ✅ Hover para ver tipos
+- ✅ Refactorings automáticos
+- ✅ Aplicar sugerencias de hlint
+
+-----
+
+* 🚀 Setup desde cero (Nix + Doom Emacs)
+
+Si no tienes nada instalado, aquí está el setup completo.
+
+** Prerrequisitos
+
+1. *NixOS* o *Nix* con flakes habilitado
+2. *Home Manager* configurado
+3. *Doom Emacs* instalado
+4. *direnv* + *nix-direnv* habilitado en home-manager
+
+** Configuración en home-manager
+
+Las herramientas Haskell ya están en =~/dotfiles/home-manager/.config/home-manager/home.nix=:
+
+#+begin_src nix
+home.packages = with pkgs; [
+  # Core
+  haskellPackages.ghc
+  haskell-language-server  # Top-level package (wrapper multi-GHC)
+  haskellPackages.cabal-install
+
+  # Formatters
+  haskellPackages.fourmolu
+  haskellPackages.ormolu
+
+  # Linting
+  haskellPackages.hlint
+
+  # Development
+  haskellPackages.ghcid
+  haskellPackages.hoogle
+  haskellPackages.implicit-hie
+
+  # System deps
+  gmp
+  zlib
+  gcc
+];
+#+end_src
+
+Aplicar cambios:
+
+#+begin_src bash
+home-manager switch
+doom sync  # Si usas Doom Emacs
+#+end_src
+
+** Configuración de Doom Emacs
+
+En =~/.doom.d/init.el=:
+
+#+begin_src elisp
+(doom!
+  :tools
+  lsp
+  direnv
+  tree-sitter
+
+  :lang
+  (haskell +lsp +test +tree-sitter))
+#+end_src
+
+En =~/.doom.d/config.el=:
+
+#+begin_src elisp
+;; PATH para herramientas Nix (ya configurado)
+(add-to-list 'exec-path (expand-file-name "~/.nix-profile/bin"))
+
+;; LSP con HLS + fourmolu
+(after! lsp-haskell
+  (setq lsp-haskell-server-path "haskell-language-server-wrapper")
+  (setq lsp-haskell-formatting-provider "fourmolu"))
+#+end_src
+
+-----
+
+* 📚 Estructura del Proyecto
+
+#+begin_example
+pensando-en-haskell/
+├── src/
+│   ├── Exercises/
+│   │   └── Tema01/           # Ejercicios del libro organizados por tema
+│   │       ├── Ej01/
+│   │       ├── Ej02/
+│   │       └── ...
+│   ├── ADNCalculator.hs      # Ejemplos varios
+│   └── Lib.hs
+├── test/                      # Tests con HSpec
+│   ├── Exercises/
+│   └── Spec.hs               # Entry point de tests
+├── app/
+│   └── Main.hs               # Ejecutable principal
+├── flake.nix                 # ⚙️  Entorno de desarrollo Nix
+├── hie.yaml                  # 🔧 Config HLS (estructura proyecto)
+├── fourmolu.yaml             # 🎨 Estilo de formateo
+├── .envrc                    # 🔄 Activación automática direnv
+└── pensando-en-haskell.cabal # 📦 Definición del proyecto
+#+end_example
+
+-----
+
+* 🐛 Troubleshooting
+
+** ~direnv: error .envrc is blocked~
+
+#+begin_src bash
+# Permitir direnv explícitamente
+direnv allow
+#+end_src
+
+** HLS no arranca en Doom Emacs
+
+#+begin_src bash
+# Verificar que HLS está en PATH
+which haskell-language-server-wrapper
+
+# Debería mostrar: /home/tu-user/.nix-profile/bin/haskell-language-server-wrapper
+#+end_src
+
+En Emacs:
+#+begin_example
+M-x lsp-workspace-show-log  # Ver logs de LSP
+M-x lsp-describe-session    # Ver estado de la sesión
+#+end_example
+
+** ~cabal: Could not resolve dependencies~
+
+Significa que las versiones en ~build-depends~ no son compatibles.
+
+*Solución 1*: Dejar que Cabal elija versiones automáticamente:
+
+#+begin_src cabal
+build-depends: base >=4.7 && <5
+             , text  -- Sin especificar versión
+#+end_src
+
+*Solución 2*: Ver qué versión funciona:
+
+#+begin_src bash
+cabal build --allow-newer  # Permite versiones más nuevas
+#+end_src
+
+** Build muy lento la primera vez
+
+*Normal*. La primera build descarga y compila dependencias (aeson, hspec, etc.). Las siguientes builds son rápidas porque Cabal cachea todo.
+
+#+begin_src bash
+# Primera vez
+cabal build  # ~2-5 minutos
+
+# Siguientes veces
+cabal build  # ~5-20 segundos (solo recompila cambios)
+#+end_src
+
+** ~git tree is dirty~ warning de direnv
+
+Es solo un warning, no afecta. Significa que hay cambios sin commitear.
+
+-----
+
+* 📖 Recursos de Aprendizaje
+
+** Libros (ordenados por dificultad)
+
+1. [[http://www.cs.us.es/~jalonso/publicaciones/Piensa_en_Haskell.pdf][Piensa en Haskell]] ⭐ - El libro de este repo (EN ESPAÑOL)
+2. [[http://learnyouahaskell.com/][Learn You a Haskell]] - Divertido, ilustrado, para empezar
+3. [[https://haskellbook.com/][Haskell Programming from First Principles]] - El más completo (de pago)
+
+** Cursos y Tutoriales
+
+- [[https://github.com/haskell-beginners-2022/course-plan][Haskell Beginners 2022 Course]] - Curso completo gratis
+- [[https://typeclasses.com/beginner-crash-course/types-and-functions-1][Type Classes - Beginner Crash Course]]
+- [[https://www.fpcomplete.com/haskell/tutorial/][FP Complete - Haskell Tutorial]]
+
+** Referencias Rápidas
+
+- [[https://hoogle.haskell.org/][Hoogle]] - Busca funciones por nombre o tipo
+- [[https://hackage.haskell.org/][Hackage]] - Repositorio de paquetes Haskell
+- [[https://cheatsheet.codeslower.com/CheatSheet.pdf][Haskell Cheatsheet]]
+
+-----
+
+* 🔧 Archivos de Configuración Explicados
+
+** ~flake.nix~ - Entorno de desarrollo
+
+Define qué herramientas están disponibles en el proyecto. Usa *nixpkgs haskellPackages* (enfoque estándar Nix).
+
+#+begin_src nix
+{
+  description = "Entorno Haskell con GHC 9.8";
+
+  # GHC, cabal, fourmolu, hlint, ghcid, etc.
+  # Se activan automáticamente con direnv
+}
+#+end_src
+
+*No necesitas tocarlo* a menos que quieras cambiar versión de GHC o añadir herramientas del sistema.
+
+** ~hie.yaml~ - Configuración HLS
+
+Le dice a HLS cómo está estructurado tu proyecto (lib, exe, test).
+
+#+begin_src yaml
+cradle:
+  cabal:
+    - path: "./src"
+      component: "lib:pensando-en-haskell"
+    - path: "./test"
+      component: "pensando-en-haskell:test:pensando-en-haskell-test"
+#+end_src
+
+*Regenerar si añades componentes nuevos*:
+
+#+begin_src bash
+gen-hie > hie.yaml
+#+end_src
+
+** ~fourmolu.yaml~ - Estilo de código
+
+Configuración del formateador (indentación, imports, etc.).
+
+#+begin_src yaml
+indentation: 2
+comma-style: leading
+diff-friendly-import-export: true
+#+end_src
+
+*Personalizar* según preferencias del equipo.
+
+** ~pensando-en-haskell.cabal~ - Definición del proyecto
+
+El archivo más importante. Define:
+- Qué módulos expone tu librería (~exposed-modules~)
+- Dependencias externas (~build-depends~)
+- Ejecutables y tests
+
+*Este sí lo editarás* constantemente al añadir módulos y dependencias.
+
+-----
+
+* 🤓 Apéndice: Por qué este setup técnico
+
+** TL;DR: nixpkgs es suficiente para aprender
+
+Este proyecto usa *nixpkgs haskellPackages*, el enfoque estándar de Nix para Haskell.
+
+*¿Por qué no Stack?*
+- Stack y Nix juntos son incómodos (ambos gestionan dependencias)
+- Cabal es más simple y se integra mejor con Nix
+
+*¿Por qué no haskell.nix?*
+- Más complejo (IFD, materialización, cache propio)
+- Overkill para aprender Haskell
+- haskell.nix es para cross-compilation y proyectos industriales
+
+*¿Por qué no haskell-flake?*
+- Es buena opción, pero añade abstracción extra
+- Para este proyecto educativo, nixpkgs raw es suficiente y más directo
+
+** Comparación rápida de enfoques Nix+Haskell
+
+| Enfoque              | Complejidad | Mejor para                   | Flexibilidad |
+|----------------------+-------------+------------------------------+--------------|
+| *nixpkgs* ⭐         | Baja        | Proyectos estándar, aprender | Media        |
+| *haskell-flake*      | Media       | Equipos, monorepos           | Media        |
+| *haskell.nix*        | Alta        | Cross-compilation, industria | Máxima       |
+
+*Para aprender Haskell*: nixpkgs es perfecto. Simple, cacheado, reproducible.
+
+*Para producción/empresa*: Considera haskell-flake o haskell.nix según necesidades.
+
+** Trade-off: Consistencia vs Libertad
+
+*nixpkgs*: Un conjunto consistente de paquetes (como una distribución Linux)
+- ✅ Todo funciona junto sin conflictos
+- ✅ Cache binario excelente (builds rápidos)
+- ❌ Solo versiones del snapshot (actualmente GHC 9.8)
+- ❌ Ignora restricciones de versión de Cabal
+
+*haskell.nix*: Libertad total (como compilar todo desde source)
+- ✅ Cualquier versión de cualquier paquete
+- ✅ Respeta restricciones exactas de Cabal
+- ❌ Más complejo (IFD, materialización)
+- ❌ Cache menos completo
+
+*Este proyecto*: nixpkgs es suficiente porque:
+1. No necesitamos versiones específicas raras
+2. Aprendiendo Haskell, no manteniendo software crítico
+3. Queremos setup simple que funcione
+
+Si algún día necesitas haskell.nix, la migración es posible (pero este README ya sería otro).
+
+-----
+
+* 🎓 Filosofía del Repo
+
+*Objetivo*: Bajar la barrera de entrada a Haskell.
+
+La configuración de entorno en Haskell puede ser frustrante. Este repo ofrece:
+- ✅ Setup que funciona out-of-the-box
+- ✅ Ejemplos reales de ejercicios
+- ✅ Tests como documentación
+- ✅ Herramientas modernas (HLS, ghcid, formatters)
+
+*No es*: Un template perfecto para producción.
+
+*Es*: Un entorno cómodo para aprender sin pelear con tooling.
+
+-----
+
+* 🤝 Contribuir
+
+¿Encontraste un error? ¿Mejorarías algo? *¡PR bienvenidos!*
+
+Áreas donde ayuda sería genial:
+- Más ejercicios resueltos con tests
+- Explicaciones en español de conceptos difíciles
+- Mejoras al README (siempre se puede mejorar)
+- Alternativas de setup más simples
+
+-----
+
+* 📜 Licencia
+
+MIT - Haz lo que quieras con este código.
+
+-----
+
+*¡Feliz Haskelling! 🚀*
+
+Si este repo te sirvió, dale una ⭐ para que otros noobskells lo encuentren.
