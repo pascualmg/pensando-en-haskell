@@ -1,0 +1,13 @@
+cradle:
+  cabal:
+    - path: "./src"
+      component: "lib:pensando-en-haskell"
+
+    - path: "./app/Main.hs"
+      component: "pensando-en-haskell:exe:pensando-en-haskell-exe"
+
+    - path: "./app/Paths_pensando_en_haskell.hs"
+      component: "pensando-en-haskell:exe:pensando-en-haskell-exe"
+
+    - path: "./test"
+      component: "pensando-en-haskell:test:pensando-en-haskell-test"
