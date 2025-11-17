@@ -40,6 +40,9 @@
             cabal-fmt
 
           ] ++ (with pkgs; [
+            # HLS - wrapper multi-GHC pre-compilado (top-level package)
+            haskell-language-server
+
             # System dependencies
             zlib
             gmp
@@ -57,6 +60,7 @@
             echo "📦 Herramientas disponibles:"
             echo "  • ghc        - Compilador Haskell 9.8.4"
             echo "  • cabal      - Build tool"
+            echo "  • hls        - Haskell Language Server (IDE support)"
             echo "  • ghcid      - Recompilación ultra-rápida"
             echo "  • fourmolu   - Formateador (recomendado)"
             echo "  • ormolu     - Formateador alternativo"
@@ -71,7 +75,7 @@
             echo "  ghcid -c 'cabal repl'    # Auto-recompilación"
             echo "  fourmolu -i src/**/*.hs  # Formatear código"
             echo ""
-            echo "⚠️  HLS no incluido en el shell (instalar aparte si necesario)"
+            echo "💡 Doom Emacs + direnv = HLS funciona automáticamente"
             echo "═══════════════════════════════════════════════════════"
           '';
         };
