@@ -2,7 +2,8 @@
   description = "Entorno de desarrollo Haskell para pensando-en-haskell (2025) - Enfoque Minimalista";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Usar 25.05 (stable) que tiene HLS compatible con GHC 9.8.4
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -40,7 +41,8 @@
             cabal-fmt
 
           ] ++ (with pkgs; [
-            # HLS - wrapper multi-GHC pre-compilado (top-level package)
+            # HLS - Incluye wrapper + binarios pre-compilados
+            # El wrapper detecta automáticamente la versión de GHC del proyecto
             haskell-language-server
 
             # System dependencies

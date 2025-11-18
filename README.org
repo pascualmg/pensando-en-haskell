@@ -4,6 +4,12 @@
 #+OPTIONS: toc:2 num:nil
 #+PROPERTY: header-args:haskell :results value :exports both
 
+#+begin_quote
+⚠️ *IMPORTANTE*: Este proyecto usa ~nixos-25.05~ (stable) NO ~nixos-unstable~.
+
+Razón: Compatibilidad entre HLS y GHC 9.8.4. Ver sección [[*~GHC ABIs don't match!~ (IMPORTANTE)][Troubleshooting → GHC ABIs don't match]].
+#+end_quote
+
 * README Interactivo 🎮
 
 Este README está en formato Org-mode, lo que significa que los snippets de código Haskell son *ejecutables* directamente en Emacs:
@@ -409,10 +415,28 @@ En =~/.doom.d/config.el=:
 ;; PATH para herramientas Nix (ya configurado)
 (add-to-list 'exec-path (expand-file-name "~/.nix-profile/bin"))
 
+;; IMPORTANTE: Activar envrc globalmente para direnv
+(after! envrc
+  (envrc-global-mode +1))
+
+;; Habilitar LSP con lsp-deferred (NO lsp directo)
+(add-hook 'haskell-mode-hook #'lsp-deferred)
+(add-hook 'haskell-literate-mode-hook #'lsp-deferred)
+
 ;; LSP con HLS + fourmolu
 (after! lsp-haskell
   (setq lsp-haskell-server-path "haskell-language-server-wrapper")
-  (setq lsp-haskell-formatting-provider "fourmolu"))
+  (setq lsp-haskell-formatting-provider "fourmolu")
+
+  ;; Habilitar plugin eval para -- >>> comments
+  (setq lsp-haskell-plugin-eval-on t))
+#+end_src
+
+*Importante*: Después de modificar la config:
+
+#+begin_src bash
+doom sync    # Sincronizar paquetes
+doom reload  # O reiniciar Emacs
 #+end_src
 
 -----
@@ -466,6 +490,57 @@ En Emacs:
 M-x lsp-workspace-show-log  # Ver logs de LSP
 M-x lsp-describe-session    # Ver estado de la sesión
 #+end_example
+
+** ~GHC ABIs don't match!~ (IMPORTANTE)
+
+Si ves este error:
+#+begin_example
+GHC ABIs don't match!
+Expected: ghc-9.8.4:XXXXXXX
+Got:      ghc-9.8.4:YYYYYYY
+#+end_example
+
+*Causa*: HLS fue compilado con una versión de GHC diferente (aunque sea el mismo número de versión).
+
+*Solución*:
+
+1. *NUNCA* instalar HLS globalmente en home-manager si usas diferentes versiones de nixpkgs entre el sistema y los proyectos.
+
+2. El flake *DEBE* usar ~nixos-25.05~ (stable) NO ~nixos-unstable~:
+
+#+begin_src nix
+inputs = {
+  nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";  # ← Importante
+  flake-utils.url = "github:numtide/flake-utils";
+};
+#+end_src
+
+3. HLS debe venir del ~pkgs~ top-level del flake:
+
+#+begin_src nix
+] ++ (with pkgs; [
+  haskell-language-server  # ← Del mismo nixpkgs que GHC
+#+end_src
+
+*NO* usar ~hsPkgs.haskell-language-server~ (compilaría desde source y fallaría).
+
+4. Asegurar que direnv/envrc está cargando el environment:
+
+#+begin_src bash
+# En el directorio del proyecto
+direnv reload
+
+# Verificar que cargó
+echo $IN_NIX_SHELL  # Debería mostrar: impure
+#+end_src
+
+5. Reiniciar el daemon de Emacs completamente:
+
+#+begin_src bash
+emacsclient -e '(kill-emacs)'
+# Esperar un momento
+emacsclient -nw ~/src/pensando-en-haskell
+#+end_src
 
 ** ~cabal: Could not resolve dependencies~
 
