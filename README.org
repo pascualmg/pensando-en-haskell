@@ -231,39 +231,97 @@ cabal test   # Tu nuevo test debería pasar
 fourmolu -i src/Exercises/Tema01/Ej14/MiEjercicio.hs
 #+end_src
 
-** Añadiendo dependencias externas
+** 📦 HOWTO: Añadir una dependencia externa
 
-*Ejemplo*: Quiero usar ~text~ para trabajar con strings eficientes
+*IMPORTANTE*: Este proyecto usa ~.cabal~ directamente (NO ~package.yaml~). Edita el archivo ~pensando-en-haskell.cabal~ manualmente.
 
-*1. Editar ~pensando-en-haskell.cabal~*:
+*** Paso 1: Entender dónde añadir la dependencia
+
+El ~.cabal~ tiene 3 secciones con ~build-depends~:
+
+#+begin_example
+library               → Código en src/
+executable            → Código en app/ (Main.hs)
+test-suite            → Tests en test/
+#+end_example
+
+*Regla*: Añade la dependencia donde la vayas a usar.
+
+*** Paso 2: Editar pensando-en-haskell.cabal
+
+*Ejemplo real*: Añadir ~http-conduit~ para hacer peticiones HTTP desde ~app/Main.hs~
+
+Busca la sección ~executable pensando-en-haskell-exe~ y añade a ~build-depends~:
 
 #+begin_src cabal
-library
+executable pensando-en-haskell-exe
+  main-is: Main.hs
+  hs-source-dirs: app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , aeson           -- Ya estaba
-    , hspec >=2.6 && <3
-    , text            -- ← AÑADIR AQUÍ (automáticamente última versión compatible)
-    -- o con versión específica:
-    -- , text >= 2.0 && < 2.1
+    , pensando-en-haskell
+    , http-conduit        -- ← AÑADIR AQUÍ
 #+end_src
 
-*2. Ejecutar*:
+*Tips*:
+- Sin versión → Cabal elige la última compatible automáticamente
+- Con versión → ~, http-conduit >= 2.3 && < 2.4~
+- Usa comas al inicio (estilo ~, paquete~) para legibilidad
+
+*** Paso 3: Compilar con direnv
+
+*IMPORTANTE*: Ejecuta siempre dentro del entorno direnv:
 
 #+begin_src bash
-cabal build  # Cabal descarga 'text' automáticamente
+direnv exec . cabal build
+# O si direnv ya está cargado en tu shell:
+cabal build
 #+end_src
 
-*3. Usar en tu código*:
+Cabal descarga y compila la dependencia automáticamente.
+
+*** Paso 4: Recargar HLS en Emacs
+
+HLS no detecta cambios en ~.cabal~ automáticamente. Reinícialo:
+
+#+begin_src emacs-lisp
+M-x lsp-workspace-restart
+# O el atajo:
+SPC c R
+#+end_src
+
+Ahora HLS conoce la nueva dependencia → autocompletado funciona.
+
+*** Paso 5: Usar en tu código
 
 #+begin_src haskell
-import qualified Data.Text as T
+-- En app/Main.hs
+import Network.HTTP.Simple
 
-miTexto :: T.Text
-miTexto = T.pack "Hola Haskell!"
+main :: IO ()
+main = do
+  response <- httpBS "https://httpbin.org/get"
+  print $ getResponseStatusCode response
 #+end_src
 
-*Nota*: No necesitas ~cabal install~ ni nada. Solo añadir a ~build-depends~ y ~cabal build~.
+*** Troubleshooting
+
+*Error: ~Could not load module 'Network.HTTP.Simple'~*
+→ La dependencia no está en el ~build-depends~ correcto. Verifica que esté en la sección donde usas el import (executable, library o test).
+
+*Error: ~Missing C library: z~*
+→ Falta una librería del sistema. Añádela a ~flake.nix~ en ~System dependencies~ y ejecuta ~direnv reload~.
+
+*** Resumen rápido
+
+#+begin_src bash
+# 1. Editar pensando-en-haskell.cabal (añadir a build-depends)
+# 2. Compilar
+direnv exec . cabal build
+# 3. Recargar HLS en Emacs
+M-x lsp-workspace-restart
+#+end_src
 
 ** Desarrollo rápido con ghcid
 
@@ -286,63 +344,392 @@ En Doom Emacs, ghcid + HLS es imparable:
 
 * 🔧 Herramientas disponibles
 
-Cuando entras al proyecto con ~direnv~, tienes todo esto:
+Cuando entras al proyecto con ~direnv~, tienes todo esto automáticamente en el PATH:
 
 ** Core Toolchain
 - *GHC 9.8.4* - Compilador Haskell
 - *cabal-install 3.16* - Build tool (lo que usamos)
 - *haskell-language-server* - LSP para IDE (Doom Emacs)
 
-** Formatters
-- *fourmolu* ⭐ - Fork configurable de ormolu (recomendado)
-- *ormolu* - Formateador opinionado sin config
-- *stylish-haskell* - Más conservador
+** 🎨 Formatters (hacer código bonito)
+
+*** fourmolu ⭐ (recomendado)
+
+Fork configurable de ormolu. Usa =fourmolu.yaml= del proyecto.
 
 #+begin_src bash
-# Formatear archivo
-fourmolu -i src/MiModulo.hs
+# Formatear UN archivo
+fourmolu -i src/Exercises/Tema01/Ej01/MediaDeTresNumeros.hs
 
-# Formatear todo el proyecto
-find src test -name "*.hs" -exec fourmolu -i {} \;
+# Formatear TODO el proyecto
+fourmolu -i $(find src test app -name "*.hs")
+
+# Ver qué cambiaría SIN modificar (dry-run)
+fourmolu src/MiModulo.hs
+
+# Formatear solo archivos modificados (git)
+git diff --name-only | grep ".hs$" | xargs fourmolu -i
 #+end_src
 
-** Linting
-- *hlint* - Sugerencias de estilo y mejoras
+*En Doom Emacs*: ~SPC c f~ formatea automáticamente con fourmolu (ya configurado).
+
+*** ormolu (alternativa)
+
+Más opinionado, sin configuración posible.
 
 #+begin_src bash
-# Ver sugerencias
-hlint src/
+ormolu -i src/MiModulo.hs
+#+end_src
 
-# Aplicar sugerencias automáticamente
+*** Personalizar fourmolu
+
+Edita =fourmolu.yaml= en la raíz del proyecto:
+
+#+begin_src yaml
+indentation: 2              # Espacios de indentación
+comma-style: leading        # Comas al principio en listas
+diff-friendly-import-export: true
+respectful: true            # No reformatear TODO agresivamente
+#+end_src
+
+** 🔍 Linting (sugerencias de mejora)
+
+*** hlint
+
+Sugiere mejoras de estilo, funciones más idiomáticas, y optimizaciones.
+
+#+begin_src bash
+# Ver todas las sugerencias del proyecto
+hlint src/ test/ app/
+
+# Ver sugerencias de UN archivo
+hlint src/Exercises/Tema01/Ej02/SumaEurosColeccionMonedas.hs
+
+# Aplicar sugerencias automáticamente (CUIDADO: revisa después)
 hlint src/ --refactor --refactor-options="-i"
+
+# Generar reporte HTML
+hlint src/ --report=hlint-report.html
+
+# Ignorar ciertas sugerencias
+hlint src/ --ignore="Use camelCase"
 #+end_src
 
-** Desarrollo
-- *ghcid* - Recompilación ultra-rápida (< 1s)
-- *hoogle* - Búsqueda de documentación
-- *gen-hie* - Genera ~hie.yaml~ (ya lo tenemos)
+*Ejemplo de output*:
+
+#+begin_example
+src/Lib.hs:23:1: Suggestion: Use newtype instead of data
+Found:
+  data Wrapper = Wrapper Int
+Why not:
+  newtype Wrapper = Wrapper Int
+#+end_example
+
+*En Doom Emacs*: ~SPC c a~ te muestra code actions de hlint integradas con LSP.
+
+** 🚀 Desarrollo Rápido
+
+*** ghcid (recompilación automática instantánea)
+
+Recompila tu código cada vez que guardas un archivo. *SÚPER RÁPIDO*.
+
+#+begin_src bash
+# Monitorear todo el proyecto
+ghcid --command='cabal repl'
+
+# Monitorear solo tests
+ghcid --command='cabal repl pensando-en-haskell-test'
+
+# Monitorear Y ejecutar un comando al compilar OK
+ghcid --command='cabal repl' --test='main'
+
+# Con colores bonitos
+ghcid --command='cabal repl' --color=always
+#+end_src
+
+*Tip*: Deja ghcid corriendo en una terminal mientras programas. Verás errores al instante.
+
+#+begin_example
+All good (8 modules, at 14:32:05)
+
+# Guardas archivo con error...
+
+src/Lib.hs:23:5: error:
+    • Couldn't match expected type 'Int' with actual type 'String'
+    • In the expression: "hola"
+
+# Lo arreglas y guardas...
+
+All good (8 modules, at 14:32:12)
+#+end_example
+
+*** hoogle (buscar funciones por nombre o tipo)
+
+Busca funciones, tipos, módulos en toda la documentación de Haskell.
+
+#+begin_src bash
+# Buscar por nombre
+hoogle "map"
+hoogle "sort"
+
+# Buscar por TIPO (lo más útil)
+hoogle "(a -> b) -> [a] -> [b]"
+# → Devuelve: map :: (a -> b) -> [a] -> [b]
+
+hoogle "[a] -> Int"
+# → Devuelve: length, sum, product...
+
+hoogle "Ord a => [a] -> [a]"
+# → Devuelve: sort, nub, group...
+
+# Buscar en un paquete específico
+hoogle "decode" +aeson
+
+# Ver documentación completa
+hoogle "map" --info
+#+end_src
+
+*Online*: También disponible en https://hoogle.haskell.org/
+
+*En Doom Emacs*: Puedes configurar un keybinding para hoogle (ver sección Doom Emacs).
+
+*** gen-hie (regenerar configuración HLS)
+
+Si añades nuevos componentes al =.cabal= (por ejemplo, un segundo ejecutable), regenera =hie.yaml=:
+
+#+begin_src bash
+# Regenerar hie.yaml automáticamente
+gen-hie > hie.yaml
+
+# Ver qué generaría SIN escribir archivo
+gen-hie
+#+end_src
+
+Luego reinicia LSP en Emacs: ~M-x lsp-workspace-restart~
+
+** 📦 Herramientas del sistema (incluidas en flake)
+
+*** zlib, gmp, pkg-config
+
+Librerías C necesarias para compilar ciertos paquetes de Haskell.
+
+Ya están incluidas en =flake.nix=, no necesitas hacer nada.
+
+** 🎯 Workflow completo con todas las herramientas
+
+*** Antes de commitear:
+
+#+begin_src bash
+# 1. Formatear todo
+fourmolu -i $(git diff --name-only --cached | grep ".hs$")
+
+# 2. Ver sugerencias de hlint
+hlint src/ test/ app/
+
+# 3. Compilar
+cabal build
+
+# 4. Tests
+cabal test
+
+# 5. Todo OK? Commit!
+git commit
+#+end_src
+
+*** Durante el desarrollo:
+
+#+begin_example
+Terminal 1: ghcid --command='cabal repl'  # Auto-recompilación
+Terminal 2: cabal test --test-show-details=streaming  # Tests
+Emacs: Escribiendo código con LSP activo
+#+end_example
+
+** 🛠️ Añadir más herramientas al flake
+
+Si quieres añadir una herramienta nueva (ejemplo: =stan= para análisis estático):
+
+1. Edita =flake.nix=:
+
+#+begin_src nix
+packages = with hsPkgs; [
+  ghc
+  cabal-install
+  # ... otras herramientas
+  stan  # ← Añadir aquí
+] ++ (with pkgs; [
+  # ...
+]);
+#+end_src
+
+2. Recarga direnv:
+
+#+begin_src bash
+direnv reload
+#+end_src
+
+3. Verifica:
+
+#+begin_src bash
+which stan  # Debería mostrar el path en /nix/store/...
+#+end_src
 
 -----
 
-* 🎯 Doom Emacs Shortcuts (si usas Doom)
+* 🎯 Doom Emacs: Guía Completa de Comandos
 
-Abre cualquier archivo ~.hs~ y:
+** Lo esencial (memoriza estos 5)
 
-- =SPC c d= - Ir a definición
-- =SPC c D= - Encontrar referencias
-- =SPC c k= - Mostrar documentación (hover)
-- =SPC c r= - Renombrar símbolo
-- =SPC c f= - Formatear con fourmolu
-- =SPC c a= - Code actions (aplicar sugerencias hlint)
-- =SPC c x= - Lista de errores
-- =SPC m= - Menu específico de Haskell
+| Keybinding | Descripción                     | Uso                           |
+|------------+---------------------------------+-------------------------------|
+| ~K~        | Ver tipo y documentación        | ⭐ EL MÁS ÚTIL - úsalo siempre |
+| ~gd~       | Ir a definición                 | Navegar código                |
+| ~SPC c a~  | Code actions (imports, fixes)   | Arreglar errores automático   |
+| ~SPC c f~  | Formatear con fourmolu          | Antes de commitear            |
+| ~] d~      | Siguiente error                 | Revisar errores uno por uno   |
 
-HLS te da:
+** Navegación de Código
+
+| Keybinding | Comando                   | Descripción                         |
+|------------+---------------------------+-------------------------------------|
+| ~K~        | ~lsp-describe-thing-at-point~ | Ver tipo y documentación            |
+| ~gd~       | ~+lookup/definition~      | Ir a definición                     |
+| ~gD~       | ~+lookup/declaration~     | Ir a declaración                    |
+| ~gr~       | ~+lookup/references~      | Ver todas las referencias           |
+| ~C-o~      | ~evil-jump-backward~      | Volver atrás en historial de saltos |
+| ~C-i~      | ~evil-jump-forward~       | Avanzar en historial                |
+
+** Code Actions y Refactoring (~SPC c~)
+
+| Keybinding | Comando              | Descripción                        |
+|------------+----------------------+------------------------------------|
+| ~SPC c a~  | ~lsp-execute-code-action~ | Auto-imports, fixes automáticos    |
+| ~SPC c r~  | ~lsp-rename~         | Renombrar símbolo en todo proyecto |
+| ~SPC c f~  | ~+format/buffer~     | Formatear buffer con fourmolu      |
+| ~SPC c k~  | ~+lookup/documentation~ | Ver documentación completa         |
+| ~SPC c d~  | ~+lookup/definition~ | Ir a definición (igual que gd)     |
+| ~SPC c D~  | ~+lookup/references~ | Ver referencias (igual que gr)     |
+
+** Errores y Diagnósticos
+
+| Keybinding | Comando              | Descripción                   |
+|------------+----------------------+-------------------------------|
+| ~] d~      | ~flycheck-next-error~    | Siguiente error/warning       |
+| ~[ d~      | ~flycheck-previous-error~ | Error/warning anterior        |
+| ~SPC c x~  | ~flycheck-list-errors~   | Lista errores del buffer      |
+| ~SPC c X~  | ~lsp-treemacs-errors-list~ | Lista errores del proyecto    |
+
+** Búsqueda (~SPC s~)
+
+| Keybinding | Comando                 | Descripción                  |
+|------------+-------------------------+------------------------------|
+| ~SPC s s~  | ~+default/search-buffer~  | Buscar en buffer actual      |
+| ~SPC s p~  | ~+default/search-project~ | Buscar en todo el proyecto   |
+| ~SPC s i~  | ~lsp-ui-imenu~          | Buscar símbolos (funciones)  |
+
+** Proyecto (~SPC p~)
+
+| Keybinding | Comando               | Descripción          |
+|------------+-----------------------+----------------------|
+| ~SPC p p~  | ~projectile-switch-project~ | Cambiar de proyecto  |
+| ~SPC p f~  | ~projectile-find-file~      | Buscar archivo       |
+| ~SPC p c~  | ~projectile-compile-project~ | Compilar proyecto    |
+| ~SPC p t~  | ~projectile-test-project~   | Ejecutar tests       |
+
+** REPL (GHCi)
+
+| Comando                         | Descripción                   |
+|---------------------------------+-------------------------------|
+| ~M-x run-haskell~               | Abrir REPL de Haskell (GHCi)  |
+| ~M-x haskell-process-load-file~ | Cargar archivo actual en REPL |
+
+Dentro del REPL:
+#+begin_src haskell
+:l Main              -- Cargar módulo Main
+:r                   -- Recargar módulo actual
+:t expresion         -- Ver tipo de expresión
+:i nombre            -- Ver info sobre función/tipo
+:q                   -- Salir del REPL
+#+end_src
+
+** Workflows Prácticos
+
+*** Workflow 1: Explorando código existente
+
+#+begin_example
+1. SPC p f → Abro archivo
+2. Veo una función interesante
+3. K sobre ella → veo su tipo
+4. gd → salto a su definición
+5. gr → veo dónde se usa
+6. C-o → vuelvo donde estaba
+#+end_example
+
+*** Workflow 2: Escribiendo código nuevo
+
+#+begin_example
+1. Empiezo a escribir una función
+2. Autocompletado me sugiere
+3. LSP muestra errores en rojo
+4. SPC c a → imports automáticos
+5. SPC c f → formateo
+6. :w → guardo
+#+end_example
+
+*** Workflow 3: Debugging un error
+
+#+begin_example
+1. Veo error en rojo
+2. Hover sobre él → leo mensaje
+3. ] d → siguiente error
+4. SPC c a → fix automático
+5. Si no, corrijo manual
+6. SPC c f → formateo
+7. Verifico que desaparece
+#+end_example
+
+*** Workflow 4: Refactoring
+
+#+begin_example
+1. Quiero renombrar función
+2. Cursor sobre el nombre
+3. SPC c r → rename
+4. Escribo nuevo nombre
+5. Enter → cambia en TODO el proyecto
+6. SPC p c → compilo para verificar
+#+end_example
+
+** Lo que HLS te da automáticamente
+
 - ✅ Errores de tipos inline
 - ✅ Autocompletado inteligente
 - ✅ Hover para ver tipos
 - ✅ Refactorings automáticos
 - ✅ Aplicar sugerencias de hlint
+- ✅ Auto-imports
+- ✅ Formateo con fourmolu
+
+** Debugging LSP
+
+| Comando                    | Descripción                    |
+|----------------------------+--------------------------------|
+| ~M-x lsp-describe-session~ | Ver sesión LSP activa          |
+| ~M-x lsp-workspace-restart~ | Reiniciar LSP                  |
+| ~M-x lsp-doctor~           | Diagnosticar problemas con LSP |
+| ~SPC h l~                  | Ver buffer ~*Messages*~        |
+
+** Configuración actual (minimalista)
+
+Tu config en =~/.config/doom/config.el= solo tiene esto:
+
+#+begin_src elisp
+;; Configuración mínima: Doom maneja todo con +lsp +tree-sitter
+(after! lsp-haskell
+  (setq lsp-haskell-formatting-provider "fourmolu"))
+#+end_src
+
+Todo lo demás funciona automáticamente con:
+- ~(haskell +lsp +tree-sitter +test)~ en =init.el=
+- direnv + flake.nix del proyecto
 
 -----
 
