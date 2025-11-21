@@ -1136,3 +1136,957 @@ MIT - Haz lo que quieras con este código.
 *¡Feliz Haskelling! 🚀*
 
 Si este repo te sirvió, dale una ⭐ para que otros noobskells lo encuentren.
+
+* 🎬 Scripting: Probar librerías sin tocar el proyecto
+
+** El problema
+
+Quieres probar =http-conduit= pero no estás seguro si te gusta. ¿Tienes que:
+1. Añadirlo al =.cabal=
+2. =cabal build= (esperar)
+3. Probarlo
+4. Si no te gusta, quitarlo del =.cabal=?
+
+*NO.* Hay una forma mejor.
+
+** La solución: Scripts con Nix shell
+
+Crea un script que se ejecuta directamente, con sus propias dependencias:
+
+#+begin_src haskell
+#!/usr/bin/env nix-shell
+#! nix-shell -i runghc -p "haskellPackages.ghcWithPackages (p: [p.http-conduit])"
+
+import Network.HTTP.Simple
+
+main = httpLBS "https://api.github.com" >>= print
+#+end_src
+
+#+begin_src bash
+chmod +x mi-script.hs
+./mi-script.hs  # ← Descarga deps y ejecuta (primera vez tarda, luego rápido)
+#+end_src
+
+** ✅ Ventajas
+
+- *NO necesitas =nix develop=*
+- *NO tocas el =.cabal=*
+- *Pruebas la librería* y si te gusta, la añades al proyecto
+- *Prototipado rápido*
+
+** 📦 Ejemplos en =scripting/=
+
+*** =http-nix.hs= - Peticiones HTTP
+
+#+begin_src bash
+./scripting/http-nix.hs
+# Hace una petición HTTP y muestra el resultado
+#+end_src
+
+*** =json-example.hs= - Parsear JSON
+
+#+begin_src bash
+./scripting/json-example.hs
+# Parsea JSON con aeson
+#+end_src
+
+*** =text-example.hs= - Procesar texto
+
+#+begin_src bash
+./scripting/text-example.hs
+# Usa la librería 'text' (más eficiente que String)
+#+end_src
+
+*** =SKELETON.hs= - Template para tus scripts
+
+Copia y adapta:
+
+#+begin_src bash
+cp scripting/SKELETON.hs scripting/mi-experimento.hs
+# Edita y añade las librerías que quieras probar
+chmod +x scripting/mi-experimento.hs
+./scripting/mi-experimento.hs
+#+end_src
+
+** 🎯 Workflow típico
+
+#+begin_example
+1. Ves una librería interesante en Hackage (ej: cassava para CSV)
+2. Creas script rápido para probarla:
+   cp scripting/SKELETON.hs scripting/prueba-csv.hs
+3. Cambias la línea del shebang:
+   #! nix-shell -i runghc -p "haskellPackages.ghcWithPackages (p: [p.cassava])"
+4. Escribes código de prueba
+5. ./scripting/prueba-csv.hs
+6. ¿Te gusta? → Lo añades al .cabal del proyecto
+   ¿No te gusta? → Borras el script, no tocaste nada del proyecto
+#+end_example
+
+** 💡 Tip: Buscar paquetes
+
+#+begin_src bash
+# Buscar paquetes disponibles en Nix
+nix search nixpkgs haskellPackages.cassava
+nix search nixpkgs haskellPackages.lens
+
+# O en Hackage
+# https://hackage.haskell.org/
+#+end_src
+
+-----
+
+* 🐛 Debugging en Haskell
+
+** La verdad incómoda
+
+*Debugging en Haskell es MUY diferente a PHP/JavaScript.*
+
+En lenguajes imperativos: pones breakpoints, ves el estado, modificas variables.
+
+En Haskell: *no funciona así.* Y está bien.
+
+** ¿Por qué es diferente?
+
+1. *Funciones puras* - No hay "estado" que inspeccionar
+2. *Inmutabilidad* - Las variables no cambian
+3. *Lazy evaluation* - El código no se ejecuta cuando crees
+4. *Los tipos previenen el 90% de los bugs*
+
+** 🎯 Cómo debuggean los Haskellers (de verdad)
+
+*** 1. REPL-Driven Development ⭐ (lo más usado)
+
+#+begin_src bash
+cabal repl
+ghci> :l src/MiModulo.hs
+ghci> miFuncion [1,2,3]  # Pruebas la función directamente
+ghci> :t miFuncion        # Ves el tipo
+ghci> :i TipoCustom       # Ves info sobre tipos
+#+end_src
+
+*Workflow real*:
+1. Escribes función
+2. =:r= en GHCi (recarga)
+3. Pruebas con inputs diferentes
+4. Ajustas
+5. Repites
+
+*** 2. Type-Driven Development (prevención > curación)
+
+#+begin_src haskell
+-- Escribes el tipo PRIMERO
+sumaLista :: [Int] -> Int
+
+-- El compilador te guía para implementarlo
+sumaLista [] = 0
+sumaLista (x:xs) = x + sumaLista xs
+
+-- Si compila, probablemente funciona
+#+end_src
+
+*El compilador ES tu debugger.*
+
+*** 3. QuickCheck (testing basado en propiedades)
+
+En lugar de debuggear, *pruebas que tu función cumple propiedades*:
+
+#+begin_src haskell
+import Test.QuickCheck
+
+-- Propiedad: reverse dos veces = identidad
+prop_reverseReverse :: [Int] -> Bool
+prop_reverseReverse xs = reverse (reverse xs) == xs
+
+-- QuickCheck genera 100 casos de prueba random
+main = quickCheck prop_reverseReverse
+#+end_src
+
+#+begin_src bash
+cabal repl
+ghci> quickCheck prop_reverseReverse
++++ OK, passed 100 tests.
+#+end_src
+
+*** 4. Debug.Trace (print debugging cuando es necesario)
+
+#+begin_src haskell
+import Debug.Trace
+
+factorial :: Int -> Int
+factorial n = trace ("llamando factorial " ++ show n) $
+    if n <= 1
+        then 1
+        else n * factorial (n - 1)
+
+-- Ejecutar:
+factorial 5
+-- Output:
+-- llamando factorial 5
+-- llamando factorial 4
+-- llamando factorial 3
+-- ...
+-- 120
+#+end_src
+
+*Tip*: =traceShow= es más conveniente:
+
+#+begin_src haskell
+import Debug.Trace (traceShow)
+
+miFuncion x = traceShow x $ x * 2
+#+end_src
+
+*** 5. GHCi Debugger (existe pero casi nadie lo usa)
+
+#+begin_src bash
+ghci> :break miFuncion
+ghci> :step miFuncion 10
+ghci> :continue
+#+end_src
+
+*Por qué nadie lo usa*:
+- Lazy evaluation hace que sea confuso
+- REPL + tipos + QuickCheck son mejores
+
+** 🔧 En Doom Emacs
+
+*** Lo que SÍ tienes (y usarás):
+
+| Comando | Descripción |
+|---------+-------------|
+| =M-x run-haskell= | Abrir REPL |
+| =C-c C-l= | Cargar archivo en REPL |
+| =C-c C-t= | Ver tipo en REPL |
+| =K= (sobre función) | Ver tipo (con LSP) |
+| =SPC c x= | Ver errores de compilación |
+
+*** Lo que NO necesitas (realmente):
+
+- *DAP (Debug Adapter Protocol)* - Existe para Haskell pero casi nadie lo usa
+- *Breakpoints visuales* - No funciona bien con lazy evaluation
+- *Step debugging* - REPL es mejor
+
+** 📝 Ejemplo de debugging real
+
+*Problema*: Tengo un bug en esta función:
+
+#+begin_src haskell
+-- Debería sumar solo los pares, pero devuelve un número raro
+sumaPares :: [Int] -> Int
+sumaPares xs = sum $ filter even xs
+#+end_src
+
+*Debugging en Haskell*:
+
+#+begin_example
+1. Abro REPL: M-x run-haskell
+2. Cargo: :l src/MiModulo.hs
+3. Pruebo: sumaPares [1,2,3,4,5,6]
+   → Output: 12  (correcto: 2+4+6=12)
+4. Pruebo caso edge: sumaPares []
+   → Output: 0  (correcto)
+5. Pruebo negativos: sumaPares [-2,-1,0,1,2]
+   → Output: 0  (¡bug! debería ser -2+0+2=0... wait, es correcto)
+6. No hay bug, era mi expectativa equivocada
+#+end_example
+
+*Si hubiera bug real*:
+
+#+begin_src haskell
+import Debug.Trace
+
+sumaPares :: [Int] -> Int
+sumaPares xs = traceShow xs $           -- Ver input
+    sum $ traceShow pares $ pares       -- Ver pares filtrados
+  where pares = filter even xs
+#+end_src
+
+** 🎓 Filosofía
+
+En Haskell:
+- *Escribes menos bugs* (tipos fuertes, pureza)
+- *Cuando hay bugs*, el REPL + tipos + tests los encuentran rápido
+- *Debuggers tradicionales* (breakpoints, step) no son necesarios
+
+*Es diferente, pero mejor.*
+
+** 📚 Recursos
+
+- [[https://wiki.haskell.org/Debugging][Haskell Wiki - Debugging]]
+- [[https://downloads.haskell.org/ghc/latest/docs/users_guide/ghci.html#the-ghci-debugger][GHC User Guide - GHCi Debugger]]
+- [[https://hackage.haskell.org/package/QuickCheck][QuickCheck en Hackage]]
+
+-----
+
+
+* 🧪 Testing Avanzado: HSpec, QuickCheck, Coverage
+
+** Tests con HSpec (ya los tienes)
+
+Tu proyecto usa *HSpec*, un framework de testing tipo RSpec (Ruby) o Jest (JS).
+
+*** Estructura de un test
+
+#+begin_src haskell
+-- test/MiModuloSpec.hs
+module MiModuloSpec (spec) where
+
+import Test.Hspec
+import MiModulo
+
+spec :: Spec
+spec = describe "miFuncion" $ do
+    it "suma dos números" $
+        miFuncion 2 3 `shouldBe` 5
+
+    it "maneja cero" $
+        miFuncion 0 0 `shouldBe` 0
+
+    it "maneja negativos" $
+        miFuncion (-2) 3 `shouldBe` 1
+#+end_src
+
+*** Matchers disponibles
+
+#+begin_src haskell
+-- Igualdad
+resultado `shouldBe` 42
+
+-- Booleanos
+esValido `shouldBe` True
+esValido `shouldSatisfy` (> 0)
+
+-- Listas
+lista `shouldContain` [2, 3]
+length lista `shouldBe` 5
+
+-- Excepciones
+evaluate (1 `div` 0) `shouldThrow` anyException
+
+-- Strings
+texto `shouldStartWith` "Hola"
+texto `shouldEndWith` "mundo"
+#+end_src
+
+** Tests con QuickCheck (property-based)
+
+*QuickCheck* genera cientos de casos de prueba automáticamente.
+
+*** Añadir QuickCheck a un test de HSpec
+
+#+begin_src haskell
+import Test.Hspec
+import Test.QuickCheck
+
+spec :: Spec
+spec = describe "reverse" $ do
+    it "dos veces es identidad" $ property $
+        \xs -> reverse (reverse xs) == (xs :: [Int])
+
+    it "preserva longitud" $ property $
+        \xs -> length (reverse xs) == length (xs :: [Int])
+#+end_src
+
+*** Propiedades útiles comunes
+
+#+begin_src haskell
+-- Idempotencia: f(f(x)) = f(x)
+prop_idempotent f x = f (f x) == f x
+
+-- Inversa: f(g(x)) = x
+prop_inverse f g x = f (g x) == x
+
+-- Conmutatividad: f(a,b) = f(b,a)
+prop_commutative f a b = f a b == f b a
+
+-- Asociatividad: f(f(a,b),c) = f(a,f(b,c))
+prop_associative f a b c = f (f a b) c == f a (f b c)
+#+end_src
+
+** Ejecutar tests
+
+*** Básico
+
+#+begin_src bash
+cabal test
+#+end_src
+
+*** Con detalles (ver cada test)
+
+#+begin_src bash
+cabal test --test-show-details=direct
+#+end_src
+
+*** Con streaming (ver en tiempo real)
+
+#+begin_src bash
+cabal test --test-show-details=streaming
+#+end_src
+
+*** Solo un test específico
+
+#+begin_src bash
+# Ejecutar solo tests que contengan "palindromo"
+cabal test --test-options="--match palindromo"
+#+end_src
+
+*** Tests en loop con ghcid
+
+#+begin_src bash
+# Tests se reejec
+
+utan automáticamente al guardar
+ghcid --command='cabal repl pensando-en-haskell-test' --test='main'
+#+end_src
+
+** Coverage (cobertura de tests)
+
+*** Generar reporte de coverage
+
+#+begin_src bash
+# Compilar con cobertura
+cabal test --enable-coverage
+
+# El reporte HTML está en:
+# dist-newstyle/build/.../hpc/vanilla/html/pensando-en-haskell-test/hpc_index.html
+#+end_src
+
+*** Ver cobertura en terminal
+
+#+begin_src bash
+cabal test --enable-coverage
+hpc report dist-newstyle/build/*/pensando-en-haskell-*/t/pensando-en-haskell-test/test/pensando-en-haskell-test.tix
+#+end_src
+
+*** Abrir reporte HTML
+
+#+begin_src bash
+cabal test --enable-coverage
+firefox $(find dist-newstyle -name "hpc_index.html" | head -1)
+#+end_src
+
+** Benchmarking (medir rendimiento)
+
+Si quieres medir rendimiento, usa *criterion*:
+
+*** Añadir benchmark al .cabal
+
+#+begin_src cabal
+benchmark pensando-en-haskell-bench
+  type: exitcode-stdio-1.0
+  main-is: Bench.hs
+  hs-source-dirs: bench
+  build-depends:
+      base
+    , pensando-en-haskell
+    , criterion
+  ghc-options: -O2 -threaded
+#+end_src
+
+*** Ejemplo de benchmark
+
+#+begin_src haskell
+-- bench/Bench.hs
+import Criterion.Main
+import MiModulo
+
+main = defaultMain [
+  bgroup "suma" 
+    [ bench "suma simple" $ whnf (sum) [1..1000]
+    , bench "suma con fold" $ whnf (foldl (+) 0) [1..1000]
+    ]
+  ]
+#+end_src
+
+#+begin_src bash
+cabal bench
+#+end_src
+
+-----
+
+* 📚 Comandos de Cabal que debes conocer
+
+** Build y compilación
+
+#+begin_src bash
+cabal build                    # Compilar todo
+cabal build lib:pensando-en-haskell  # Solo la librería
+cabal build exe:pensando-en-haskell-exe  # Solo el ejecutable
+cabal build --ghc-options="-Wall"  # Con warnings extras
+
+cabal clean                    # Limpiar builds (si algo va raro)
+cabal build --enable-profiling # Compilar con profiling
+#+end_src
+
+** Ejecutar
+
+#+begin_src bash
+cabal run pensando-en-haskell-exe       # Ejecutar
+cabal run pensando-en-haskell-exe -- arg1 arg2  # Con argumentos
+#+end_src
+
+** REPL
+
+#+begin_src bash
+cabal repl                     # REPL con la librería cargada
+cabal repl pensando-en-haskell-exe  # REPL del ejecutable
+cabal repl pensando-en-haskell-test # REPL de tests
+
+# Dentro del REPL:
+:r                             # Recargar cambios
+:t expresion                   # Ver tipo
+:i Tipo                        # Info sobre tipo/clase
+:browse Modulo                 # Ver exports de módulo
+:!comando                      # Ejecutar comando shell
+#+end_src
+
+** Tests
+
+#+begin_src bash
+cabal test                     # Ejecutar tests
+cabal test --test-show-details=direct  # Ver detalles
+cabal test --test-options="--match nombre"  # Solo tests que coincidan
+cabal test --enable-coverage   # Con coverage
+#+end_src
+
+** Dependencias
+
+#+begin_src bash
+# Ver dependencias del proyecto
+cabal build --dry-run
+
+# Ver qué versiones están instaladas
+ghc-pkg list
+
+# Congelar versiones exactas (para reproducibilidad)
+cabal freeze
+# Crea cabal.project.freeze con versiones exactas
+
+# Ver dependencias desactualizadas
+cabal outdated
+#+end_src
+
+** Documentación
+
+#+begin_src bash
+# Generar documentación HTML (como Hackage)
+cabal haddock
+
+# Abrir documentación generada
+firefox dist-newstyle/build/*/pensando-en-haskell-*/doc/html/pensando-en-haskell/index.html
+#+end_src
+
+** Otros útiles
+
+#+begin_src bash
+# Ver info del proyecto
+cabal info pensando-en-haskell
+
+# Instalar ejecutable globalmente
+cabal install pensando-en-haskell-exe
+
+# Formatear el .cabal
+cabal-fmt -i pensando-en-haskell.cabal
+
+# Listar todos los targets
+cabal build --dry-run -v0 | grep "^   "
+#+end_src
+
+-----
+
+* 🎓 Conceptos de Haskell que DEBES saber
+
+** Tipos básicos
+
+#+begin_src haskell
+-- Números
+42 :: Int              -- Entero con límite
+42 :: Integer          -- Entero arbitrariamente grande
+3.14 :: Double         -- Float de doble precisión
+
+-- Strings y chars
+'a' :: Char            -- Un carácter
+"hola" :: String       -- String = [Char] (lista de chars)
+
+-- Booleanos
+True :: Bool
+False :: Bool
+
+-- Listas
+[1, 2, 3] :: [Int]     -- Lista de enteros
+[] :: [a]              -- Lista vacía (de cualquier tipo)
+
+-- Tuplas
+(1, "hola") :: (Int, String)
+(1, 2, 3) :: (Int, Int, Int)
+
+-- Unit (como void)
+() :: ()               -- Valor único, tipo único
+
+-- Maybe (puede ser Nothing o Just algo)
+Just 5 :: Maybe Int
+Nothing :: Maybe Int
+
+-- Either (puede ser Left o Right)
+Left "error" :: Either String Int
+Right 42 :: Either String Int
+#+end_src
+
+** Funciones
+
+#+begin_src haskell
+-- Declaración de tipo
+suma :: Int -> Int -> Int
+suma x y = x + y
+
+-- Aplicación (sin paréntesis ni comas!)
+suma 2 3  -- → 5
+
+-- Aplicación parcial
+suma2 = suma 2     -- suma2 :: Int -> Int
+suma2 3            -- → 5
+
+-- Funciones de orden superior
+map :: (a -> b) -> [a] -> [b]
+map (+1) [1,2,3]   -- → [2,3,4]
+
+filter :: (a -> Bool) -> [a] -> [a]
+filter even [1,2,3,4]  -- → [2,4]
+
+-- Composición
+(.) :: (b -> c) -> (a -> b) -> (a -> c)
+(suma 2 . (*3)) 5  -- → 17  (primero *3, luego +2)
+#+end_src
+
+** Pattern Matching
+
+#+begin_src haskell
+-- En listas
+suma [] = 0
+suma (x:xs) = x + suma xs
+
+-- En Maybe
+mostrar Nothing = "nada"
+mostrar (Just x) = "valor: " ++ show x
+
+-- En tuplas
+primero (x, _) = x
+segundo (_, y) = y
+
+-- Guards (condiciones)
+absoluto x
+    | x < 0     = -x
+    | otherwise = x
+
+-- Case
+case maybeValor of
+    Nothing -> "sin valor"
+    Just x  -> "valor: " ++ show x
+#+end_src
+
+** Lazy Evaluation (IMPORTANTE)
+
+Haskell es *lazy*: no evalúa nada hasta que es necesario.
+
+#+begin_src haskell
+-- Listas infinitas (¡sí, infinitas!)
+[1..]              -- [1,2,3,4,5,6,7,8,...]
+take 5 [1..]       -- → [1,2,3,4,5]
+
+-- Esto NO explota, solo toma los primeros 3
+take 3 [1..]       -- → [1,2,3]
+
+-- Fibonacci infinito
+fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+take 10 fibs       -- → [0,1,1,2,3,5,8,13,21,34]
+#+end_src
+
+** Purity (funciones puras)
+
+#+begin_src haskell
+-- Función pura: mismo input → mismo output, sin efectos
+suma :: Int -> Int -> Int
+suma x y = x + y   -- SIEMPRE devuelve lo mismo con los mismos argumentos
+
+-- Función impura (necesita IO)
+main :: IO ()
+main = do
+    putStrLn "¿Cómo te llamas?"
+    nombre <- getLine           -- Lee de stdin
+    putStrLn $ "Hola, " ++ nombre
+
+-- NO puedes llamar código IO desde código puro
+-- Esto NO compila:
+impuro :: Int
+impuro = putStrLn "hola"  -- ERROR: tipos no coinciden
+#+end_src
+
+** Do Notation (para IO y Monads)
+
+#+begin_src haskell
+main :: IO ()
+main = do
+    -- Cada línea es una acción IO
+    putStrLn "línea 1"
+    putStrLn "línea 2"
+    
+    -- <- extrae valor de IO
+    nombre <- getLine
+    let nombreMayus = map toUpper nombre  -- let NO tiene <-
+    
+    putStrLn nombreMayus
+
+-- Equivalente sin do:
+main = 
+    putStrLn "línea 1" >>
+    putStrLn "línea 2" >>
+    getLine >>= \nombre ->
+    let nombreMayus = map toUpper nombre in
+    putStrLn nombreMayus
+#+end_src
+
+** List Comprehensions
+
+#+begin_src haskell
+-- Como en Python/matemáticas
+[x * 2 | x <- [1..10]]
+-- → [2,4,6,8,10,12,14,16,18,20]
+
+-- Con filtro
+[x | x <- [1..10], even x]
+-- → [2,4,6,8,10]
+
+-- Múltiples generadores
+[(x, y) | x <- [1,2,3], y <- [4,5,6]]
+-- → [(1,4),(1,5),(1,6),(2,4),(2,5),(2,6),(3,4),(3,5),(3,6)]
+
+-- Pitagóricos
+[(a,b,c) | a <- [1..20], b <- [1..20], c <- [1..20], a^2 + b^2 == c^2]
+#+end_src
+
+-----
+
+* 🚨 Errores comunes y cómo leerlos
+
+** Error: "Couldn't match expected type..."
+
+#+begin_example
+error:
+    • Couldn't match expected type 'Int' with actual type '[Char]'
+    • In the expression: "42"
+      In an equation for 'x': x = "42"
+#+end_example
+
+*Qué significa*: Esperaba un =Int= pero le diste un =String=.
+
+*Solución*: Convierte tipos o corrige la anotación de tipo.
+
+#+begin_src haskell
+-- Mal
+x :: Int
+x = "42"
+
+-- Bien
+x :: Int
+x = 42
+
+-- O si necesitas convertir
+x :: Int
+x = read "42"  -- Convierte String a Int
+#+end_src
+
+** Error: "No instance for (Show ...)"
+
+#+begin_example
+error:
+    • No instance for (Show (a -> b))
+        arising from a use of 'print'
+#+end_example
+
+*Qué significa*: Intentas imprimir algo que no se puede mostrar (como una función).
+
+*Solución*: No imprimas funciones. Imprime el *resultado* de aplicar la función.
+
+#+begin_src haskell
+-- Mal
+main = print suma  -- ERROR: no puedes imprimir funciones
+
+-- Bien
+main = print (suma 2 3)  -- Imprime el resultado: 5
+#+end_src
+
+** Error: "Parse error on input..."
+
+#+begin_example
+error: parse error on input '='
+#+end_example
+
+*Qué significa*: Sintaxis incorrecta (paréntesis, indentación, etc.).
+
+*Solución*: Revisa:
+- Indentación (Haskell es sensible a indentación)
+- Paréntesis balanceados
+- Comas en listas
+
+#+begin_src haskell
+-- Mal (indentación incorrecta)
+suma x y =
+x + y  -- ERROR: debe estar indentado
+
+-- Bien
+suma x y =
+    x + y
+#+end_src
+
+** Error: "Ambiguous occurrence..."
+
+#+begin_example
+error:
+    Ambiguous occurrence 'head'
+    It could refer to either 'Prelude.head' or 'Data.List.head'
+#+end_example
+
+*Solución*: Importa con qualified o específico.
+
+#+begin_src haskell
+-- Opción 1: Import qualified
+import qualified Data.List as L
+L.head [1,2,3]
+
+-- Opción 2: Import específico
+import Data.List (sort)  -- Solo sort, no head
+#+end_src
+
+** Error: "Non-exhaustive patterns"
+
+#+begin_example
+*** Exception: Non-exhaustive patterns in function miFuncion
+#+end_example
+
+*Qué significa*: Tu pattern matching no cubre todos los casos.
+
+#+begin_src haskell
+-- Mal (¿qué pasa si la lista está vacía?)
+primero (x:xs) = x  -- ERROR en runtime con []
+
+-- Bien
+primero (x:xs) = Just x
+primero []     = Nothing
+#+end_src
+
+-----
+
+* 🎯 Cheatsheet: Sintaxis rápida
+
+** Declaraciones
+
+#+begin_src haskell
+-- Variable
+x = 42
+
+-- Función
+suma x y = x + y
+
+-- Con tipo
+suma :: Int -> Int -> Int
+suma x y = x + y
+
+-- Let (local)
+resultado = let x = 10
+                y = 20
+            in x + y
+
+-- Where (al final)
+resultado = x + y
+  where
+    x = 10
+    y = 20
+#+end_src
+
+** Listas
+
+#+begin_src haskell
+[1, 2, 3]          -- Lista literal
+1 : [2, 3]         -- Cons (agregar al inicio)
+[1, 2] ++ [3, 4]   -- Concatenar
+head [1,2,3]       -- Primer elemento: 1
+tail [1,2,3]       -- Resto: [2,3]
+take 2 [1,2,3,4]   -- Primeros n: [1,2]
+drop 2 [1,2,3,4]   -- Sin primeros n: [3,4]
+length [1,2,3]     -- Longitud: 3
+reverse [1,2,3]    -- Invertir: [3,2,1]
+#+end_src
+
+** Funciones de orden superior
+
+#+begin_src haskell
+map (+1) [1,2,3]              -- [2,3,4]
+filter even [1,2,3,4]         -- [2,4]
+foldr (+) 0 [1,2,3]           -- 6 (suma)
+zip [1,2,3] ["a","b","c"]     -- [(1,"a"),(2,"b"),(3,"c")]
+zipWith (+) [1,2,3] [4,5,6]   -- [5,7,9]
+#+end_src
+
+** Operadores útiles
+
+#+begin_src haskell
+$   -- Aplicación (evita paréntesis)
+f $ g $ h x  ≡  f (g (h x))
+
+.   -- Composición
+(f . g) x  ≡  f (g x)
+
+<$> -- Map (fmap)
+(+1) <$> [1,2,3]  ≡  map (+1) [1,2,3]
+
+<*> -- Aplicativo
+[(+1), (+2)] <*> [10, 20]  →  [11,21,12,22]
+
+>>= -- Bind (Monad)
+Just 5 >>= \x -> Just (x + 1)  →  Just 6
+#+end_src
+
+-----
+
+* 📖 Recursos organizados por nivel
+
+** Nivel 0: Nunca programé en Haskell
+
+1. [[http://learnyouahaskell.com/][Learn You a Haskell]] - Tutorial ilustrado, divertido
+2. [[http://www.cs.us.es/~jalonso/publicaciones/Piensa_en_Haskell.pdf][Piensa en Haskell]] - En español, académico
+3. [[https://www.youtube.com/watch?v=02_H3LjqMr8][Haskell in 100 Seconds]] - Video overview
+
+** Nivel 1: Hice algunos ejercicios
+
+1. [[https://github.com/haskell-beginners-2022/course-plan][Haskell Beginners Course 2022]] - Curso completo gratis
+2. [[https://exercism.org/tracks/haskell][Exercism - Haskell Track]] - Ejercicios con mentores
+3. [[https://www.haskelltutorials.com/][Haskell Tutorials]] - Colección de tutoriales
+
+** Nivel 2: Entiendo lo básico, quiero más
+
+1. [[https://haskellbook.com/][Haskell Programming from First Principles]] - El libro definitivo (de pago)
+2. [[https://github.com/data61/fp-course][Data61 FP Course]] - Curso hardcore de FP
+3. [[https://typeclasses.com/][Type Classes]] - Tutoriales avanzados
+
+** Nivel 3: Quiero hacer proyectos reales
+
+1. [[https://lexi-lambda.github.io/blog/][Alexis King's Blog]] - Artículos avanzados
+2. [[https://www.parsonsmatt.org/][Matt Parsons' Blog]] - Patterns de producción
+3. [[https://www.fpcomplete.com/haskell/][FP Complete Guides]] - Guías prácticas
+
+** Herramientas de referencia
+
+- [[https://hoogle.haskell.org/][Hoogle]] - Buscar funciones por tipo
+- [[https://hackage.haskell.org/][Hackage]] - Repositorio de paquetes
+- [[https://www.stackage.org/][Stackage]] - Paquetes curados (compatibles)
+- [[https://cheatsheet.codeslower.com/][Haskell Cheatsheet]] - Sintaxis rápida
+
+** Comunidades
+
+- [[https://discourse.haskell.org/][Haskell Discourse]] - Foro oficial
+- [[https://www.reddit.com/r/haskell/][r/haskell]] - Reddit activo
+- [[https://wiki.haskell.org/IRC_channel][#haskell en Libera.Chat]] - IRC
+- [[https://haskell.foundation/][Haskell Foundation]] - Organización oficial
+
+-----
+
