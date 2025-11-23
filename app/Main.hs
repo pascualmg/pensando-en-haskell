@@ -1,3 +1,4 @@
+-- app/Main.hs
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
@@ -8,7 +9,6 @@ import Exercises.Tema01.Ej01.MediaDeTresNumeros (media3)
 import Network.HTTP.Simple
 import Servant
 import API (MotorcycleAPI, motorcycleServer)
-import Types (Motorcycle)
 
 main :: IO ()
 main = do
