@@ -4,12 +4,11 @@
 module Main where
 
 import ADNCalculator (countADN, isValid)
-import API (MotorcycleAPI, motorcycleServer)
 import Control.Monad (forM_)
 import Exercises.Tema01.Ej01.MediaDeTresNumeros (media3)
 import Network.HTTP.Simple
-import Network.Wai.Handler.Warp (run)
 import Servant
+import API (MotorcycleAPI, motorcycleServer)
 import Types (Motorcycle)
 
 main :: IO ()
@@ -36,7 +35,7 @@ main = do
     ]
 
   -- Run the Servant server
-  run 8080 motorcycleServer
+  run 8080 (serve motorcycleAPI motorcycleServer)
 
 pinta :: [(Char, Int)] -> String
 pinta [] = ""
