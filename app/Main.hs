@@ -6,6 +6,9 @@ import ADNCalculator (countADN, isValid)
 import Control.Monad (forM_)
 import Exercises.Tema01.Ej01.MediaDeTresNumeros (media3)
 import Network.HTTP.Simple
+import Servant
+import API (MotorcycleAPI, motorcycleServer)
+import Types (Motorcycle)
 
 main :: IO ()
 main = do
@@ -23,12 +26,15 @@ main = do
         putStrLn $ "Reconstructed: " ++ pinta counted
         putStrLn "we"
     )
-    mapM_
+  mapM_
     print
     [ media3 2 3 1
     , media3 10 20 30
     , media3 (-5) 0 5
     ]
+
+  -- Run the Servant server
+  run 8080 motorcycleServer
 
 pinta :: [(Char, Int)] -> String
 pinta [] = ""
