@@ -1,9 +1,9 @@
 {
-  description = "Entorno de desarrollo Haskell para pensando-en-haskell (2025) - Enfoque Minimalista";
+  description = "Entorno de desarrollo Haskell para pensando-en-haskell (2025) - GHC 9.14 + hdb (DAP)";
 
   inputs = {
-    # Usar 25.05 (stable) que tiene HLS compatible con GHC 9.8.4
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    # nixos-unstable necesario para GHC 9.14 (hdb DAP debugger requiere 9.14+)
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -12,40 +12,30 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
-        # GHC 9.8 para coincidir con stack.yaml
-        ghcVersion = "ghc98";
-        hsPkgs = pkgs.haskell.packages.${ghcVersion};
+        # Compilador GHC 9.14 binario directo (precompilado en cache.nixos.org).
+        # Evita el set haskell.packages.ghc914 cuyas libs aun no estan
+        # todas precompiladas y romperia el shell. cabal-install resolvera
+        # las dependencias del proyecto contra Hackage usando este GHC.
+        ghc914 = pkgs.haskell.compiler.ghc914;
 
       in
       {
         devShells.default = pkgs.mkShell {
-          # Paquetes del proyecto - SOLO binarios pre-compilados
-          packages = with hsPkgs; [
-            # Core toolchain
-            ghc
-            cabal-install
-
-            # Formatters (binarios estables)
+          packages = [
+            ghc914
+            pkgs.cabal-install # cabal default, compatible con cualquier GHC
+          ] ++ (with pkgs.haskellPackages; [
+            # Tooling: binarios standalone del set haskellPackages default.
+            # Funcionan sobre cualquier codigo Haskell, no requieren matchear GHC.
             ormolu
             fourmolu
-
-            # Linting
             hlint
-
-            # Development tools
             ghcid
             hoogle
-
-            # Utilidades
             implicit-hie
             cabal-fmt
-
-          ] ++ (with pkgs; [
-            # HLS - Incluye wrapper + binarios pre-compilados
-            # El wrapper detecta automáticamente la versión de GHC del proyecto
-            haskell-language-server
-
-            # System dependencies
+          ]) ++ (with pkgs; [
+            haskell-language-server # wrapper detecta GHC del proyecto
             zlib
             gmp
             pkg-config
@@ -60,24 +50,26 @@
             echo "Cabal:        $(cabal --numeric-version)"
             echo ""
             echo "📦 Herramientas disponibles:"
-            echo "  • ghc        - Compilador Haskell 9.8.4"
+            echo "  • ghc        - Compilador Haskell 9.14"
             echo "  • cabal      - Build tool"
-            echo "  • hls        - Haskell Language Server (IDE support)"
+            echo "  • hls        - Haskell Language Server"
             echo "  • ghcid      - Recompilación ultra-rápida"
-            echo "  • fourmolu   - Formateador (recomendado)"
-            echo "  • ormolu     - Formateador alternativo"
+            echo "  • fourmolu   - Formateador"
             echo "  • hlint      - Linter"
             echo "  • hoogle     - Búsqueda de docs"
-            echo "  • gen-hie    - Genera hie.yaml"
+            echo ""
+            echo "🐛 Debugger (primera vez):"
+            echo "  cabal update"
+            echo "  cabal install haskell-debugger --installdir=\$HOME/.local/bin"
+            echo "  → \$HOME/.local/bin/hdb (configura dap-haskell en Doom)"
             echo ""
             echo "🚀 Comandos útiles:"
             echo "  cabal build              # Construir proyecto"
             echo "  cabal test               # Ejecutar tests"
             echo "  cabal repl               # REPL interactivo"
             echo "  ghcid -c 'cabal repl'    # Auto-recompilación"
-            echo "  fourmolu -i src/**/*.hs  # Formatear código"
             echo ""
-            echo "💡 Doom Emacs + direnv = HLS funciona automáticamente"
+            echo "💡 Doom Emacs + direnv = HLS automatico"
             echo "═══════════════════════════════════════════════════════"
           '';
         };
