@@ -3,6 +3,9 @@ cradle:
     - path: "./src"
       component: "lib:pensando-en-haskell"
 
+    - path: "./app/Debugging101.hs"
+      component: "pensando-en-haskell:exe:debug101"
+
     - path: "./app/Main.hs"
       component: "pensando-en-haskell:exe:pensando-en-haskell-exe"
 
