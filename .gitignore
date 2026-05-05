@@ -9,3 +9,8 @@
 .direnv/
 *.save*
 app.save*/
+
+# aider (AI pair programming) - cache local, no compartir
+.aider.chat.history.md
+.aider.input.history
+.aider.tags.cache.v4/
