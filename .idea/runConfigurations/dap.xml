@@ -1,0 +1,32 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="dap" type="DAPConfiguration" factoryName="DAPConfiguration">
+    <option name="attachAddress" />
+    <option name="attachConfiguration" />
+    <option name="attachConfigurationId" />
+    <option name="attachPort" />
+    <option name="command" value="bash -c &quot;cd $PROJECT_DIR$ &amp;&amp; exec $USER_HOME$/.local/bin/hdb-dap server --port ${port}&quot;" />
+    <option name="debugServerReadyPattern" value="Running DAP server on" />
+    <option name="debugServerWaitStrategy" value="TRACE" />
+    <option name="file" />
+    <option name="installerConfiguration" value="{}" />
+    <option name="launchConfiguration" value="{&#10;  &quot;type&quot;: &quot;haskell-debugger&quot;,&#10;  &quot;name&quot;: &quot;Debug Haskell file&quot;,&#10;  &quot;request&quot;: &quot;launch&quot;,&#10;  &quot;projectRoot&quot;: &quot;$PROJECT_DIR$&quot;,&#10;  &quot;entryFile&quot;: &quot;$PROJECT_DIR$/app/Debugging101.hs&quot;,&#10;  &quot;entryPoint&quot;: &quot;main&quot;,&#10;  &quot;entryArgs&quot;: [],&#10;  &quot;extraGhcArgs&quot;: [],&#10;  &quot;internalInterpreter&quot;: true,&#10;  &quot;cwd&quot;: &quot;$PROJECT_DIR$&quot;&#10;}" />
+    <option name="launchConfigurationId" />
+    <option name="serverId" value="dcac66a2-8418-4dbc-ad6c-0df0d72f421d" />
+    <option name="serverMappings">
+      <list>
+        <ServerMappingSettings language="Haskell" languageId="haskell" />
+        <ServerMappingSettings languageId="haskell">
+          <fileType>
+            <FileTypeSettings name="Haskell" />
+          </fileType>
+        </ServerMappingSettings>
+      </list>
+    </option>
+    <option name="serverName" />
+    <option name="serverTrace" value="verbose" />
+    <option name="serverUrl" />
+    <option name="workingDirectory" value="$PROJECT_DIR$" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>
